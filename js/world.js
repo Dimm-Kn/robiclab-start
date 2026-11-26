@@ -36,21 +36,29 @@ RL.World = (function () {
     // смена «костюма» (совёнок спит → приоткрыл глаз → проснулся): другой скелет на том же холсте
     a.setRig = (n) => { if (RL.Rig.has(n)) { a.rig = RL.Rig.create(n, el); a.rigName = n; } };
     if (prevState) Object.assign(a, { x: prevState.x, y: prevState.y, vx: prevState.vx, vy: prevState.vy, jump: prevState.jump, jv: prevState.jv, sq: prevState.sq, sv: prevState.sv,
-                                      wx: prevState.wx, wspeed: prevState.wspeed, walkAmt: prevState.walkAmt, walkPh: prevState.walkPh });   // перерисовка сцены не сбивает шаг
+                                      wx: prevState.wx, wy: prevState.wy, wspeed: prevState.wspeed, walkAmt: prevState.walkAmt, walkPh: prevState.walkPh });   // перерисовка сцены не сбивает шаг
     a.hop = (power = 1) => { if (a.jump > -0.01) { a.jv = -1.6 * power; a.sq = -0.18 * power; a.sv = 0; } };
     a.poke = (dx = 0, dy = -1) => { a.vx += dx; a.vy += dy; a.sq = 0.12; };
     a.goto = (x, y) => { a.tx = x; a.ty = y; };
     a.goHome = () => { a.tx = a.home.x; a.ty = a.home.y; };
     // пешком: ровным шагом к точке x (для стоящих героев), ноги шагают сами
-    a.walkTo = (x, speed = 16) => { a.wx = x; a.wspeed = speed; };
+    // y — необязательно: по карте герои ходят и вглубь (вверх-вниз), не только вбок
+    a.walkTo = (x, speed = 16, y) => { a.wx = x; a.wspeed = speed; a.wy = y; };
     a.walkAmt = 0; a.walkPh = 0;
     return a;
   }
 
   function stepActor(a, dt) {
     if (a.wx !== undefined) {
-      const d = a.wx - a.x, st = a.wspeed * dt;
-      if (Math.abs(d) <= st) { a.x = a.wx; a.wx = undefined; } else { a.x += Math.sign(d) * st; a.vx = Math.sign(d) * a.wspeed * 0.25; }
+      const st = a.wspeed * dt;
+      if (a.wy !== undefined) {   // по карте: прямо к точке, вглубь сцены шаг короче (y в % высоты, сцена 16:9)
+        const dx = a.wx - a.x, dy = (a.wy - a.y) * 0.5625, dist = Math.hypot(dx, dy);
+        if (dist <= st) { a.x = a.wx; a.y = a.ty = a.wy; a.wx = a.wy = undefined; }
+        else { a.x += dx / dist * st; a.y += dy / dist * st / 0.5625; a.ty = a.y; a.vx = dx / dist * a.wspeed * 0.25; }
+      } else {
+        const d = a.wx - a.x;
+        if (Math.abs(d) <= st) { a.x = a.wx; a.wx = undefined; } else { a.x += Math.sign(d) * st; a.vx = Math.sign(d) * a.wspeed * 0.25; }
+      }
     } else if (a.mode === 'stand') a.vx *= 0.8;
     const moving = a.wx !== undefined || Math.abs(a.vx) > 3;
     a.walkAmt += ((moving ? 1 : 0) - a.walkAmt) * Math.min(1, dt * 6);
@@ -84,7 +92,9 @@ RL.World = (function () {
     const talkBob = a.rig ? 0 : a.talk * Math.abs(Math.sin(t * 11 + a.phase)) * 0.035;   // у скелетных героев речь — в суставах     // покачивание в такт речи
     const hoverBob = a.mode === 'hover' ? Math.sin(t * 1.7 + a.phase) * 1.1 : 0;
     const shake = a.shiver ? (Math.random() - 0.5) * a.shiver : 0;
-    const sy = 1 + br + a.sq * -1 + talkBob, sx = 1 - br * 0.5 + a.sq * 0.7;
+    const ps = a.persp ? a.persp(a.y) : 1;   // перспектива: дальше — меньше
+    const sy = (1 + br + a.sq * -1 + talkBob) * ps, sx = (1 - br * 0.5 + a.sq * 0.7) * ps;
+    if (a.persp) a.el.style.zIndex = 3 + Math.round(a.y / 10);
     const rot = a.lean + (a.rig ? 0 : a.talk * Math.sin(t * 7 + a.phase) * 3 + Math.sin(t * 0.9 + a.phase) * 0.8);
     const px = -ptr.sx * a.depth * 1.4, py = -ptr.sy * a.depth * 0.8;           // параллакс
     a.el.style.left = (a.x + shake) + '%';

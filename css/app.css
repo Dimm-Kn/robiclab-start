@@ -406,3 +406,37 @@ canvas.world { position:absolute; inset:0; width:100%; height:100%; pointer-even
 @keyframes sway { 50% { transform:translate(-50%,-100%) rotate(3deg); } }
 .sprout { position:absolute; font-size:5cqw; z-index:5; transform:translate(-50%,-100%); opacity:.85; filter:drop-shadow(0 .3cqw .3cqw rgba(0,0,0,.25)); }
 .howto.g { left:76cqw; top:12cqw; }
+
+/* ---------- v10: лаборатория, пауза, журнал ---------- */
+.house .labchip { position:absolute; right:-1.2cqw; top:-1.2cqw; width:4.2cqw; height:4.2cqw; border-radius:50%; background:#fff; border:.3cqw solid var(--teal);
+  font-size:2.3cqw; display:flex; align-items:center; justify-content:center; box-shadow:0 .35cqw 0 #0d5f5b, 0 .5cqw 1cqw rgba(0,0,0,.3); z-index:2; cursor:pointer; transition:transform .15s; }
+.house .labchip:hover { transform:scale(1.12) rotate(-8deg); }
+.conds.lab { top:9cqw; gap:.9cqw; }
+.conds.lab .cond { opacity:1; padding:.6cqw 1.1cqw; font-size:1.6cqw; }
+.conds.lab .cond .ci { font-size:2.6cqw; }
+.conds.lab .cond b { font-size:2.5cqw; }
+.cond.rec { background:#fff6dc; box-shadow:0 .5cqw 0 #e0b84a, 0 .8cqw 1.2cqw rgba(0,0,0,.2); }
+.cond.rec.lo { background:#e8f3ff; box-shadow:0 .5cqw 0 #8fb6e0, 0 .8cqw 1.2cqw rgba(0,0,0,.2); }
+.cond.rec.lo b { color:#2e6fb8; }
+.cond.rec.flash { animation:recFlash .9s ease-out; }
+@keyframes recFlash { 0% { transform:scale(1); } 30% { transform:scale(1.12); box-shadow:0 0 0 .6cqw var(--candy), 0 0 3cqw rgba(255,207,63,.9); } 100% { transform:scale(1); } }
+.cond.pin .pl { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:11cqw; }
+.cond.pin.fresh { animation:pinIn .6s cubic-bezier(.2,1.8,.4,1); }
+@keyframes pinIn { from { transform:translateX(6cqw) scale(.6); opacity:0; } to { transform:none; opacity:1; } }
+.cond.hintc { opacity:.75; border-style:dashed; border-color:#c9b48e; background:rgba(255,255,255,.75); }
+.pinbtn { background:linear-gradient(#ffe27a, var(--candy)); color:#6b3b12; box-shadow:0 .7cqw 0 var(--candy-d), 0 1cqw 1.6cqw rgba(0,0,0,.35); }
+.topic .gos { margin-left:auto; display:flex; gap:4px; }
+.topic .go.lab { padding-inline:8px; }
+.keys { margin:6px 0 0; font-size:11px; color:var(--muted); }
+.pinrow { display:flex; gap:6px; margin-bottom:6px; }
+.pinrow input { flex:1; min-width:0; border:1px solid #c4ccd6; border-radius:8px; padding:6px 8px; font-size:13px; }
+.btn.primary { background:var(--yellow); border-color:#d9a020; font-weight:700; }
+table.j button.x { border:none; background:none; color:#b33; cursor:pointer; font-size:13px; padding:0 4px; }
+.btn[disabled] { opacity:.45; }
+.jmodal { position:fixed; inset:0; z-index:100; background:rgba(15,20,30,.55); display:flex; align-items:center; justify-content:center; padding:16px; }
+.jbox { background:#fff; border-radius:12px; width:min(1100px, 100%); max-height:88vh; display:flex; flex-direction:column; box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.jh { display:flex; gap:8px; align-items:center; padding:12px 16px; border-bottom:1px solid var(--line); }
+.jh b { flex:1; font-size:16px; color:var(--navy); }
+.jscroll { overflow:auto; padding:8px 16px 16px; }
+table.j.full { font-size:13px; }
+table.j.full td { vertical-align:top; }

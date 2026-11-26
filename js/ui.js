@@ -29,7 +29,18 @@ window.RL = window.RL || {};
   const HERO = { asya: 'img/asya_full.png', tim: 'img/tim_full.png' };
   const ROBIK = { cold: 'img/robik_cold.png', wait: 'img/robik_think.png', neutral: 'img/robik_think.png', warm: 'img/robik_warm.png',
                   happy: 'img/robik_happy.png', loud: 'img/robik_ears.png', shh: 'img/robik_sneak.png', bright: 'img/robik_happy.png' };
-  const STEP_ICON = { intro: '🎬', guess: '🤔', measure: '📏', compare: '🏆', game: '🎮', sticker: '📒' };
+  const STEP_ICON = { intro: '🎬', guess: '🤔', measure: '📏', compare: '🏆', game: '🎮', sticker: '📒', lab: '🔬' };
+  const houseName = lessonId => { const x = HOUSES.find(h => h.lesson === lessonId); return x ? x.name : ''; };
+  const fmtV = (v, L) => v === null || v === undefined ? '—' : Math.round(v) + (L && L.channel === 't' ? '°' : '');
+  // прибор на экране детей: термометр для тепла, столбик-индикатор для звука, света и влажности
+  function gauge(L, meter) {
+    const lit = L.channel === 'light', wet = L.channel === 'rh';
+    return meter
+      ? `<div class="vu ${lit ? 'lux' : wet ? 'wet' : ''}"><div class="vu-bars" id="vubars">${Array.from({ length: 14 }, (_, k) => `<i style="--k:${k}"></i>`).join('')}</div><div class="vu-val"><b id="tval"></b><small>${lit ? '☀️' : wet ? '💧 %' : 'дБ'}</small></div></div>`
+      : `<div class="thermo"><div class="tube"><div class="fill" id="tfill"></div><div class="shine"></div>
+          ${[20, 25, 30, 35].map(t => `<i class="tick" style="bottom:${(t - 15) / 25 * 100}%"></i>`).join('')}</div>
+          <div class="bulb" id="tbulb"></div><div class="tval" id="tval"></div></div>`;
+  }
   // декорации каждого занятия: фоны, точки на фонах (в % сцены), окружение
   const SCENES = {
     'heat-1': {
@@ -75,6 +86,43 @@ window.RL = window.RL || {};
   // спрайты из Codex (img/codex): подставляются, только если файл есть
   const CODEX = {}; ['owlet_half', 'owlet_awake', 'howto_cup', 'howto_probe', 'howto_spot', 'howto_pass', 'why_hand', 'why_soft'].forEach(n => { const i = new Image(); i.onload = () => { CODEX['img/codex/' + n + '.png'] = true; stageKey = ''; /* перерисовать экран с новой картинкой */ }; i.src = 'img/codex/' + n + '.png'; });
   const has = src => !!(src && CODEX[src]);
+  // карта без нарисованных героев (Codex): тогда по ней гуляют живые Ася, Тим и Робик
+  let mapEmpty = false; { const i = new Image(); i.onload = () => { mapEmpty = true; if (E.state && E.state.screen === 'map') { stageKey = ''; renderStage(E.state, E.lesson); } }; i.src = 'img/map_empty.jpg'; }
+  // точки прогулки, % сцены: площадь в центре и выходы на дорожки к домикам
+  const PLAZA = [[40, 56], [44, 58.5], [49, 59], [54, 58], [58, 56], [47, 54], [52, 54.5]];
+  const TRAILS = [[33, 61], [30, 47], [64, 52], [63, 41], [49, 40], [31, 68], [60, 66]];
+  const mapPersp = y => Math.max(0.62, Math.min(1.08, 0.62 + (y - 38) / 22 * 0.4));
+  let mapTimer = null;
+  function mapLife() {
+    clearInterval(mapTimer);
+    const heroes = ['asya', 'tim'].map(n => W.actor(n)).filter(Boolean), rob = W.actor('robik');
+    [...heroes, rob].forEach(a => { if (a) a.persp = mapPersp; });
+    // точка подальше от другого героя (его цели или места), чтобы ребята не сливались в одного
+    const other = a => heroes.find(h => h !== a);
+    const spot = (a, list) => { const o = other(a), ox = o ? (o.wx !== undefined ? o.wx : o.x) : -99; let p;
+      for (let k = 0; k < 8; k++) { p = list[Math.floor(Math.random() * list.length)]; if (Math.abs(p[0] - ox) > 8) break; } return p; };
+    const pick = (a) => { const far = Math.random() < 0.3, p = spot(a, far ? TRAILS : PLAZA);
+      a.walkTo(p[0] + (Math.random() - 0.5) * 2, 9 + Math.random() * 3, p[1]); a.away = far; };
+    mapTimer = setInterval(() => {
+      const S = E.state; if (!S || S.screen !== 'map') { clearInterval(mapTimer); return; }
+      heroes.forEach(a => {
+        if (a.wx !== undefined) return;                       // ещё идёт
+        if (a.away) { const p = spot(a, PLAZA); a.walkTo(p[0], 10, p[1]); a.away = false; return; }
+        const o = other(a); if (o && o.wx === undefined && Math.abs(o.x - a.x) < 6 && Math.abs(o.y - a.y) < 5) { pick(a); return; }   // стоят вплотную — разойтись   // сходил к домику — вернулся
+        const r = Math.random();
+        if (r < 0.22) pick(a); else if (r < 0.3) a.gesture('wave', 1.6); else if (r < 0.34) { a.hop(0.7); a.gesture('cheer', 1.2); }
+        else if (r < 0.37) a.gesture('point', 2, { side: a.x < 50 ? 'R' : 'L' });
+      });
+      // Робик летает за тем, кто ушёл дальше всех от центра, иначе — между ребятами
+      // Робик летает рядом с ребятами, но не за ними: сбоку от пары и чуть ближе к зрителю
+      if (rob && heroes.length) { const lead = heroes.find(a => a.away);
+        const xs = heroes.map(a => a.x), my = Math.max(...heroes.map(a => a.y));
+        let tx, ty;
+        if (lead) { tx = lead.x + (lead.x < 49 ? 6 : -6); ty = lead.y + 1.5; }
+        else { const lo = Math.min(...xs), hi = Math.max(...xs); tx = hi - lo > 14 ? (lo + hi) / 2 : (Math.abs(lo - 6 - 49) < Math.abs(hi + 6 - 49) ? lo - 6 : hi + 6); ty = my + 1.5; }
+        rob.goto(Math.max(30, Math.min(68, tx)), ty); }
+    }, 700);
+  }
   const howto = (src, cls = '') => has(src) ? `<div class="howto ${cls}"><img src="${src}" alt=""></div>` : '';
   Object.values(ROBIK).concat(Object.values(HERO), ['img/owlet.png', 'img/owl_parents.png', 'img/bg_snow.jpg']).forEach(src => { const i = new Image(); i.src = src; });
 
@@ -116,7 +164,8 @@ window.RL = window.RL || {};
   function renderStage(S, L) {
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
     const key = JSON.stringify([S && S.screen, L && L.id, S && S.i, S && S.cond, S && S.results, S && S.winner,
-      S && S.game && [S.game.round, S.game.rounds, S.game.between, S.game.won, S.game.done], S && S.paused]);
+      S && S.game && [S.game.round, S.game.rounds, S.game.between, S.game.won, S.game.done], S && S.paused,
+      S && S.lab && S.lab.marks.map(m => m.n)]);
     if (key === stageKey) return; stageKey = key;
     const scr = S ? S.screen : 'map';
     const sc = (L && SCENES[L.id] && SCENES[L.id][scr]) || {};
@@ -126,10 +175,12 @@ window.RL = window.RL || {};
     if (scr === 'map') {
       const album = RL.Journal.album();
       const total = Object.values(album).reduce((a, b) => a + b, 0);
-      h = `<div class="scr"><div class="bg" style="background-image:url(img/map.jpg)"></div>${world}
+      const live = mapEmpty && RL.Rig && RL.Rig.has('asya');
+      h = `<div class="scr"><div class="bg" style="background-image:url(${live ? 'img/map_empty.jpg' : 'img/map.jpg'})"></div>
+        ${live ? actor('asya', HERO.asya, 43.5, 57, 15.5, 'stand') + actor('tim', HERO.tim, 55, 57.5, 15.5, 'stand') + actor('robik', ROBIK.happy, 49, 53, 7.5, 'hover') : ''}${world}
         ${HOUSES.map(x => { const [l, t, w, hh] = x.box; const locked = !x.lesson;
           return `<button class="house ${locked ? 'locked' : 'today'}" data-house="${x.id}" style="left:${l}%;top:${t}%;width:${w}%;height:${hh}%">
-            ${locked ? '<span class="lock">🔒</span>' : '<span class="arrow">▼</span>'}
+            ${locked ? '<span class="lock">🔒</span>' : `<span class="arrow">▼</span><span class="labchip" data-lab="${x.lesson}" title="Лаборатория: мерить что угодно">🔬</span>`}
             <span class="lbl">${x.icon} ${x.name}${album[x.id] ? ' · ' + album[x.id] + '⭐' : ''}</span></button>`; }).join('')}
         <div class="title-sign">Городок Почему</div>
         <div class="hud"><button class="gbtn" id="repeat">🔊</button><span class="spacer"></span>
@@ -161,12 +212,6 @@ window.RL = window.RL || {};
     }
     else if (scr === 'measure') {
       const c = st.conditions[S.cond];
-      const lit = L.channel === 'light', wet = L.channel === 'rh';
-      const gauge = sc.meter
-        ? `<div class="vu ${lit ? 'lux' : wet ? 'wet' : ''}"><div class="vu-bars" id="vubars">${Array.from({ length: 14 }, (_, k) => `<i style="--k:${k}"></i>`).join('')}</div><div class="vu-val"><b id="tval"></b><small>${lit ? '☀️' : wet ? '💧 %' : 'дБ'}</small></div></div>`
-        : `<div class="thermo"><div class="tube"><div class="fill" id="tfill"></div><div class="shine"></div>
-            ${[20, 25, 30, 35].map(t => `<i class="tick" style="bottom:${(t - 15) / 25 * 100}%"></i>`).join('')}</div>
-            <div class="bulb" id="tbulb"></div><div class="tval" id="tval"></div></div>`;
       const target = c.key === 'water' && sc.target ? `<div class="target-ring" style="left:${sc.target[0]}%;top:${sc.target[1]}%;width:${sc.targetSize}cqw;height:${sc.targetSize}cqw"></div>` : '';
       const hands = has(c.howto) ? howto(c.howto, sc.meter ? 'r' : '') : c.key === 'hand' ? '<div class="hands">🤲</div>' : '';
       // луч фонарика к Робику: яркость луча = показание датчика; посередине — преграда, которую сейчас ставят
@@ -176,10 +221,25 @@ window.RL = window.RL || {};
       h = `<div class="scr"><div class="bg" style="background-image:url(${sc.bg})"></div>${beam}
         ${target}<div class="holdring" id="holdring"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="44"/><circle class="prog" id="holdprog" cx="50" cy="50" r="44" pathLength="100"/></svg></div>
         ${actor('robik', ROBIK[moodOf(device.eyes)], sc.robik[0], sc.robik[1], 22, 'hover')}${hands}
-        ${world}${hud(S, L)}${say(S.reaction || c.short || c.say)}${gauge}
+        ${world}${hud(S, L)}${say(S.reaction || c.short || c.say)}${gauge(L, sc.meter)}
         <div class="conds ${sc.meter && !sc.condsRight ? 'left' : ''}">${st.conditions.map((x, k) => { const r = S.results[x.key];
           return `<div class="cond ${k === S.cond && r === undefined ? 'now' : ''} ${r !== undefined ? 'done' : ''} ${x.baseline ? 'base' : ''}"><span class="ci">${x.icon}</span><span>${x.label}</span><b>${r !== undefined ? Math.round(r) + (L.channel === 't' ? '°' : '') : '?'}</b>${r !== undefined ? '<span class="check">✔</span>' : ''}</div>`; }).join('')}</div>
         <div class="chartbox ${sc.meter ? 'snd' : ''}"><canvas class="chart" id="chart"></canvas></div>${holdBtn('next', '▶')}</div>`;
+    }
+    else if (scr === 'lab') {
+      // свободная лаборатория: прибор, график, рекорды и ряд находок
+      const ms = SCENES[L.base].measure, lab = S.lab, show = lab.marks.slice(-5);
+      h = `<div class="scr"><div class="bg" style="background-image:url(${ms.bg})"></div>
+        ${actor('robik', ROBIK[moodOf(device.eyes)], ms.robik[0], ms.robik[1], 22, 'hover')}
+        ${world}${hud(S, L)}${say(S.reaction || 'Мерьте что хотите — я покажу! 🔬')}${gauge(L, ms.meter)}
+        <div class="conds lab">
+          <div class="cond rec"><span class="ci">🏔️</span><span>Больше всего</span><b id="recmax">${fmtV(lab.max, L)}</b></div>
+          <div class="cond rec lo"><span class="ci">🕳️</span><span>Меньше всего</span><b id="recmin">${fmtV(lab.min, L)}</b></div>
+          ${show.map((m, k) => `<div class="cond done pin ${k === show.length - 1 && prev.marks !== lab.count ? 'fresh' : ''}"><span class="ci">📌</span><span class="pl">${m.label}</span><b>${fmtV(m.v, L)}</b></div>`).join('')}
+          ${show.length ? '' : '<div class="cond hintc"><span class="ci">📌</span><span>Находки появятся здесь</span></div>'}
+        </div>
+        <div class="chartbox ${ms.meter ? 'snd' : ''}"><canvas class="chart" id="chart"></canvas></div>
+        ${board ? '<button class="gbtn big next pinbtn" id="pin" title="Запомнить показание">📌</button>' : ''}</div>`;
     }
     else if (scr === 'compare') {
       const m = L.steps.find(x => x.type === 'measure'), g = L.steps.find(x => x.type === 'guess');
@@ -277,13 +337,13 @@ window.RL = window.RL || {};
     stage.classList.toggle('nosubs', !subsOn);
     if (keep) stage.querySelectorAll('.say').forEach(s => s.classList.add('still'));
     W.attach(stage, { emitters: emit, floor, keep });
-    RL.Amb.scene(ambience(L, scr));
+    RL.Amb.scene(L && L.lab ? ambience(RL.content[L.base], 'measure') : ambience(L, scr));
     // музыка: тема карты, тема домика на занятии, весёлая — в игре, торжественная — на наклейке
     RL.Music.play(!L ? 'map' : scr === 'game' ? 'game_' + L.house : scr === 'sticker' ? 'sticker' : scr === 'compare' ? 'discovery' : 'house_' + L.house);
     lastMood = ''; updateLive(true);
     requestAnimationFrame(() => stage.querySelectorAll('.col').forEach(b => b.style.height = b.dataset.h));
     effects(S, L, scr);
-    prev = Object.assign(prev, { screen: scr, lesson: L && L.id, i: S && S.i, results: S && Object.keys(S.results || {}).length, won: S && S.game ? S.game.won : 0 });
+    prev = Object.assign(prev, { screen: scr, lesson: L && L.id, i: S && S.i, results: S && Object.keys(S.results || {}).length, won: S && S.game ? S.game.won : 0, marks: S && S.lab ? S.lab.count : 0 });
   }
 
   // фон сцены: какие петли звучат на каком экране
@@ -301,6 +361,7 @@ window.RL = window.RL || {};
     if (!S) return;
     const enter = prev.screen !== scr || prev.i !== S.i;
     if (prev.screen !== scr) Sfx.whoosh();
+    if (scr === 'map') mapLife();   /* новые актёры после перерисовки — снова в прогулку */
     const rob = W.actor('robik');
     if (enter && rob && scr === 'intro') { rob.x = -12; const k = rob.k, c = rob.c; rob.k = 4; rob.c = 4; rob.goto(rob.home.x, rob.home.y); setTimeout(() => { rob.k = k; rob.c = c; }, 4500); }   // Робик сам приходит в кадр под рассказ
     else if (enter && rob) { rob.y -= 18; rob.vy = 20; }                             // Робик «влетает» в кадр
@@ -310,6 +371,7 @@ window.RL = window.RL || {};
       if (scr === 'guess') setTimeout(() => a.gesture('wave', 1.6), 1300 + k * 200); });
     const nres = Object.keys(S.results || {}).length;
     if (scr === 'measure' && nres > (prev.results || 0) && prev.screen === 'measure') { Sfx.success(); W.burst(16, 30, ['⭐', '✨', '🌟'], 14); rob && rob.hop(1); }
+    if (scr === 'lab' && S.lab.count > (prev.marks || 0) && prev.screen === 'lab') { Sfx.success(); W.burst(86, 40, ['📌', '✨', '⭐'], 12); if (rob) { rob.hop(1); rob.gesture('nod', 1.2); } }
     if (scr === 'compare' && enter) {
       const cst = L.steps[S.i], why = cst.why && cst.why[S.winner];
       if (why) setTimeout(() => {
@@ -339,7 +401,7 @@ window.RL = window.RL || {};
   }
 
   // ---------- живые элементы ----------
-  let lastMood = '', lastAwake = false, lastFlashes = 0;
+  let lastMood = '', lastAwake = false, lastFlashes = 0, lastRec = 0;
   function updateLive(force) {
     const S = E.state, L = E.lesson, v = Snr.value;
     const tf = $('#tfill'); if (tf) { const p = Math.max(3, Math.min(100, (v - 15) / 25 * 100)); tf.style.height = p + '%'; const cold = v < 26; tf.classList.toggle('coldf', cold); const b = $('#tbulb'); if (b) b.classList.toggle('coldf', cold); }
@@ -347,7 +409,17 @@ window.RL = window.RL || {};
     const vb = $('#vubars'); if (vb) { const on = Math.round(Math.max(0, Math.min(1, L && L.channel === 'rh' ? (v - 30) / 65 : L && L.channel === 'light' ? v / 100 : (v - 30) / 55)) * 14); vb.querySelectorAll('i').forEach((el, k) => el.classList.toggle('on', k < on)); }
     // Робик меняет спрайт по настроению; громко — подскакивает
     const rob = W.actor('robik');
-    if (rob && S && S.screen === 'measure') {
+    if (S && S.screen === 'lab' && S.lab) {
+      const lab = S.lab, a = $('#recmax'), b = $('#recmin');
+      if (a) a.textContent = fmtV(lab.max, L); if (b) b.textContent = fmtV(lab.min, L);
+      if (lab.rec && lab.rec.at !== lastRec) {   // новый рекорд: вспышка у своей строки
+        lastRec = lab.rec.at; const el = lab.rec.kind === 'max' ? a : b;
+        if (el) { const row = el.parentElement; row.classList.remove('flash'); void row.offsetWidth; row.classList.add('flash'); }
+        Sfx.chime(); W.burst(86, lab.rec.kind === 'max' ? 20 : 30, lab.rec.kind === 'max' ? ['⬆️', '✨'] : ['⬇️', '✨'], 6, 10);
+      }
+      const sy = $('#saytext'); if (sy && S.reaction && sy.textContent !== S.reaction) sy.textContent = S.reaction;
+    }
+    if (rob && S && (S.screen === 'measure' || S.screen === 'lab')) {
       const mood = moodOf(device.eyes);
       if (mood !== lastMood) { look(rob, ROBIK[mood], mood); if (lastMood) rob.poke(0, mood === 'loud' ? -40 : -15); lastMood = mood; }
       rob.shiver = mood === 'cold' ? 0.6 : mood === 'loud' ? 0.9 : 0;
@@ -426,8 +498,9 @@ window.RL = window.RL || {};
       const sy = $('#saytext'); if (sy && !g.done) { const t = g.lit ? 'Светит! Выключите 🌑' : 'Включите 🔦'; if (sy.textContent !== t) sy.textContent = t; }
     }
     // будильник в симуляторе: громкость следует за показанием датчика звука
-    if (S && L && L.channel === 'sound' && S.screen === 'measure' && Snr.source === 'sim') RL.Amb.level('alarm', Math.max(0, Math.min(1, (v - 45) / 32)) * 0.55);
-    else if (S && S.screen !== 'measure') RL.Amb.level('alarm', 0);
+    const meas = S && (S.screen === 'measure' || S.screen === 'lab');
+    if (S && L && L.channel === 'sound' && meas && Snr.source === 'sim') RL.Amb.level('alarm', Math.max(0, Math.min(1, (v - 45) / 32)) * 0.55);
+    else if (S && !meas) RL.Amb.level('alarm', 0);
     drawChart();
     updatePanelLive();
   }
@@ -475,7 +548,7 @@ window.RL = window.RL || {};
     if (!autopilot || Snr.source !== 'sim' || !S || !L) return;
     const st = S.i >= 0 ? L.steps[S.i] : null; if (!st) return;
     const g = S.game;
-    const key = [L.id, S.i, S.cond, Object.keys(S.results).length, g && g.round, g && g.between].join('|');
+    const key = [L.id, S.i, S.cond, Object.keys(S.results).length, g && g.round, g && g.between, S.lab && S.lab.count].join('|');
     if (key === apKey) return; apKey = key; clearTimeout(apTimer);
     const sound = L.channel === 'sound', light = L.channel === 'light', wet = L.channel === 'rh';
     if (st.type === 'measure') {
@@ -487,16 +560,22 @@ window.RL = window.RL || {};
       apTimer = setTimeout(() => { Snr.rh('breath'); refreshPanel(); }, 1800);
     } else if (st.type === 'game' && g && g.kind === 'ice' && !g.between) {
       apTimer = setTimeout(() => { Snr.hold('hand'); refreshPanel(); }, 1800);
+    } else if (st.type === 'lab') {
+      // показ лаборатории: по очереди предметы урока, каждый — в находки
+      const k = S.lab.count, c = L.conditions[k];
+      const set = key => { wet ? Snr.rh(key) : light ? Snr.light(key) : sound ? Snr.sound(key) : Snr.hold(key); refreshPanel(); };
+      if (!c) { apTimer = setTimeout(() => set(wet || light ? 'room' : sound ? 'quiet' : null), 1500); return; }
+      apTimer = setTimeout(() => { set(c.key); apTimer = setTimeout(() => { const S2 = E.state; if (S2 && S2.lab && S2.lab.count === k) E.pin(c.label); }, 4500); }, 1500);
     } else { wet ? Snr.rh('room') : light ? Snr.light('room') : sound ? Snr.sound('quiet') : Snr.hold(null); refreshPanel(); }
   }
 
   // ---------- пульт педагога ----------
-  let panelKey = '';
+  let panelKey = '', pinDraft = '';
   function refreshPanel() { panelKey = ''; renderPanel(E.state, E.lesson); }
   function renderPanel(S, L) {
     const j = RL.Journal.list();
     const key = JSON.stringify([S && S.screen, L && L.id, S && S.i, S && S.cond, S && S.results, S && S.votes, S && S.paused,
-      j.length, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
+      j.length, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
     if (key === panelKey) return; panelKey = key;
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
     let h = `<div class="ph"><b>Пульт педагога</b><span class="grp">«Солнышко» · 18 детей</span><button id="present" title="Клавиша P">Скрыть</button></div>`;
@@ -508,15 +587,26 @@ window.RL = window.RL || {};
     if (!L) {
       h += `<div class="sec"><h4>Темы</h4>${HOUSES.map(x => { const les = x.lesson && RL.content[x.lesson];
         return `<div class="topic ${les ? 'on' : ''}">${x.icon} ${x.topic}
-        ${les ? `<button class="go" data-start="${x.lesson}" title="${les.title} · ${les.age} · ${les.minutes} мин">▶ На экран</button>` : '<span class="soon">следующая версия</span>'}</div>`; }).join('')}
-        <p class="muted">Готовы два занятия: «Где теплее?» (сад, 5–6 лет) и «Тише, совёнок спит!» (1 класс).</p></div>`;
+        ${les ? `<span class="gos"><button class="go" data-start="${x.lesson}" title="${les.title} · ${les.age} · ${les.minutes} мин">▶ Урок</button><button class="go lab" data-lab="${x.lesson}" title="Свободные опыты: мерить что угодно">🔬</button></span>` : '<span class="soon">следующая версия</span>'}</div>`; }).join('')}
+        <p class="muted">▶ Урок — занятие по сценарию. 🔬 Лаборатория — свободные опыты с тем же датчиком: дети мерят что хотят и сравнивают находки.</p></div>`;
+    } else if (L.lab) {
+      h += `<div class="sec"><h4>${L.title}</h4>
+        <div class="ctrls"><button id="p-pause" class="primary">${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-lesson">▶ Урок этого домика</button>
+        <button id="p-map" style="grid-column:span 2">⌂ Завершить и на карту</button></div>
+        <p class="keys">Esc — пауза · R — повтор фразы · Enter — запомнить</p></div>`;
+      h += `<div class="sec"><h4>Подсказка педагогу</h4><div class="hint">${st.hint}</div></div>`;
+      h += `<div class="sec"><h4>Находки · ${S.lab.marks.length}</h4>
+        <div class="pinrow"><input id="pinlabel" type="text" maxlength="24" placeholder="Что мерили (можно пусто)" value="${pinDraft.replace(/"/g, '&quot;')}"><button class="btn primary" id="p-pin">📌 Запомнить</button></div>
+        ${S.lab.marks.length ? `<table class="j">${S.lab.marks.map((m, k) => `<tr><td>${m.label}</td><td><b>${fmtV(m.v, L)}</b>${L.channel === 't' ? '' : ' ' + (L.channel === 'sound' ? 'дБ' : '%')}</td><td><button class="x" data-unpin="${k}" title="Убрать">✕</button></td></tr>`).join('')}</table>` : '<p class="muted">Пока пусто. Когда показание встало, нажмите «Запомнить».</p>'}
+        <div class="row"><button class="btn" id="p-resetrec">↺ Сбросить рекорды</button></div></div>`;
     } else {
       h += `<div class="sec"><h4>Занятие · ${L.title} · ${L.minutes} мин</h4><ul class="steps">${L.steps.map((x, k) =>
         `<li data-go="${k}" class="${k === S.i ? 'cur' : k < S.i ? 'past' : ''}"><span class="n">${k + 1}</span>${x.title}</li>`).join('')}</ul>
         <div class="ctrls"><button id="p-back">⏮ Назад</button><button id="p-skip">Пропустить ⏭</button>
         <button id="p-pause" class="primary">${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-repeat">🔁 Повторить шаг</button>
-        <button id="p-map" style="grid-column:span 2">⌂ Завершить и на карту</button></div></div>`;
-      h += `<div class="sec"><h4>Сейчас звучит</h4><div id="psay">${RL.Voice.last || ''}</div></div>`;
+        <button id="p-map" style="grid-column:span 2">⌂ Завершить и на карту</button></div>
+        <p class="keys">← → шаги · Esc — пауза · R — повтор фразы · P — скрыть пульт</p></div>`;
+      h += `<div class="sec"><h4>Сейчас звучит</h4><div id="psay">${RL.Voice.last || ''}</div><div class="row"><button class="btn" id="p-sayagain">🔊 Повторить фразу</button></div></div>`;
       if (st && st.hint) h += `<div class="sec"><h4>Подсказка педагогу</h4><div class="hint">${st.hint}</div></div>`;
       if (st && st.type === 'intro') h += `<div class="sec"><div class="row"><button class="btn" id="p-skipnarr">⏭ Пропустить рассказ — сразу Робик</button></div></div>`;
       const rg = L.steps.find(x => x.game === 'warm-robik' || x.game === 'cloud');
@@ -531,7 +621,7 @@ window.RL = window.RL || {};
 
     const snd = Snr.channel === 'sound', lux = Snr.channel === 'light', wet = Snr.channel === 'rh';
     const hold = Snr.sim.holding, ss = Snr.sim.sound.state, ls = Snr.sim.light.state;
-    h += `<div class="sec"><h4>Датчик «Робик» · ${snd ? 'звук' : 'температура'}</h4>
+    h += `<div class="sec"><h4>Датчик «Робик» · ${snd ? 'звук' : lux ? 'свет' : wet ? 'влажность' : 'температура'}</h4>
       <div class="live"><span class="big" id="pv">—</span><span id="ptrend" class="muted"></span></div>
       <div class="dev">Глаза: <span class="eye" id="peye"></span><span id="peyet"></span> · <span id="pvib"></span></div>
       <div class="muted">Источник: ${{ serial: 'USB (Web Serial)', mic: 'микрофон компьютера', sim: 'симулятор' }[Snr.source]}</div>
@@ -570,7 +660,8 @@ window.RL = window.RL || {};
       ${'speechSynthesis' in window && !RL.Voice.hasVoice ? '<p class="muted">Русский голос в системе не найден — фразы видны выше, в «Сейчас звучит».</p>' : ''}</div>`;
 
     h += `<div class="sec"><h4>Журнал группы</h4>${j.length ? `<table class="j"><tr><th>Дата</th><th>Занятие</th><th>Итог</th></tr>${j.slice(0, 6).map(e =>
-      `<tr><td>${new Date(e.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}</td><td>${e.title}</td><td>${resultText(e)}</td></tr>`).join('')}</table>` : '<p class="muted">Пока пусто. Запись появится после наклейки.</p>'}
+      `<tr><td>${new Date(e.date).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })}</td><td>${e.kind === 'lab' ? '🔬 ' : ''}${e.title}</td><td>${resultText(e)}</td></tr>`).join('')}</table>` : '<p class="muted">Пока пусто. Запись появится после наклейки или выхода из лаборатории.</p>'}
+      <div class="row"><button class="btn" id="jall" ${j.length ? '' : 'disabled'}>📋 Весь журнал</button><button class="btn" id="csv" ${j.length ? '' : 'disabled'}>⬇ Таблица (Excel)</button></div>
       <div class="row"><button class="btn" id="export">⬇ Выгрузка для COR</button><button class="btn" id="clear">Очистить</button></div>
       <p class="muted">Журнал хранится в этом браузере, без имён детей. Формат выгрузки в COR — предварительный.</p></div>`;
     const sy = RL.Sync.state;
@@ -584,12 +675,27 @@ window.RL = window.RL || {};
     updatePanelLive();
   }
   function resultText(e) {
+    if (e.kind === 'lab') { const u = e.unit === '°' ? '°' : ''; return (e.marks || []).length ? '📌 ' + e.marks.map(m => Math.round(m.v) + u).join(' · ') : (e.max !== null && e.max !== undefined ? Math.round(e.min) + '…' + Math.round(e.max) + u : ''); }
     const L = RL.content[e.lesson]; if (!L) return '';
     const m = L.steps.find(x => x.type === 'measure'), g = L.steps.find(x => x.type === 'guess');
     const r = m.conditions.filter(c => e.results && e.results[c.key] !== undefined).map(c => c.icon + Math.round(e.results[c.key])).join(' ');
     const w = e.winner === 'tie' ? 'ничья' : (m.conditions.find(c => c.key === e.winner) || {}).label;
-    return `${r}${w ? ' · ' + w : ''}`;
+    return `${r}${w ? ' · ' + w : ''}${e.guessed === true ? ' · угадали' : ''}`;
   }
+  // весь журнал — окно поверх приложения
+  function journalModal() {
+    const j = RL.Journal.list();
+    const box = document.createElement('div'); box.className = 'jmodal'; box.id = 'jmodal';
+    box.innerHTML = `<div class="jbox"><div class="jh"><b>Журнал группы «Солнышко» · ${j.length}</b><button class="btn" id="jcsv">⬇ Таблица (Excel)</button><button class="btn" id="jclose">✕ Закрыть</button></div>
+      <div class="jscroll"><table class="j full"><tr><th>Дата</th><th>Занятие</th><th>Мин</th><th>⭐</th><th>Догадки группы</th><th>Угадали</th><th>Замеры</th><th>Итог</th></tr>
+      ${j.map(e => { const d = new Date(e.date), x = RL.Journal.describe(e);
+        return `<tr><td>${d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td><td>${e.kind === 'lab' ? '🔬 ' : ''}${e.title}</td><td>${e.minutes || ''}</td><td>${e.stars || 0}</td><td>${x.votes}</td><td>${x.guessed}</td><td>${x.measures}</td><td>${x.outcome}</td></tr>`; }).join('')}
+      </table></div></div>`;
+    document.body.appendChild(box);
+    box.addEventListener('click', e => { if (e.target === box || e.target.id === 'jclose') box.remove(); if (e.target.id === 'jcsv') downloadCSV(); });
+  }
+  function download(name, text, type) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+  function downloadCSV() { download('robiclab-journal-' + new Date().toISOString().slice(0, 10) + '.csv', RL.Journal.exportCSV(), 'text/csv;charset=utf-8'); }
 
   function updatePanelLive() {
     const pv = $('#pv'); if (!pv) return;
@@ -608,7 +714,9 @@ window.RL = window.RL || {};
 
   // ---------- события ----------
   stage.addEventListener('click', e => {
+    const lb = e.target.closest('[data-lab]'); if (lb) { Sfx.tap(); E.startLab(lb.dataset.lab, houseName(lb.dataset.lab)); return; }
     const t = e.target.closest('button, [data-vote]'); if (!t) return;
+    if (t.id === 'pin') { Sfx.tap(); E.pin(''); return; }
     if (t.dataset.house) {
       const x = HOUSES.find(hh => hh.id === t.dataset.house);
       Sfx.tap();
@@ -637,6 +745,8 @@ window.RL = window.RL || {};
   panel.addEventListener('click', async e => {
     const t = e.target.closest('button, li'); if (!t) return;
     if (t.dataset.start) E.start(t.dataset.start);
+    if (t.dataset.lab) E.startLab(t.dataset.lab, houseName(t.dataset.lab));
+    if (t.dataset.unpin !== undefined) E.unpin(+t.dataset.unpin);
     if (t.dataset.go !== undefined) E.go(+t.dataset.go);
     if (t.dataset.v) E.vote(t.dataset.v, +t.dataset.d);
     if (t.dataset.hold !== undefined) { Snr.hold(t.dataset.hold || null); refreshPanel(); }
@@ -650,6 +760,12 @@ window.RL = window.RL || {};
       case 'p-repeat': E.repeat(); break;
       case 'p-map': E.showMap(); break;
       case 'p-fix': E.fix(); break;
+      case 'p-sayagain': E.sayAgain(); break;
+      case 'p-pin': E.pin(pinDraft); pinDraft = ''; refreshPanel(); break;
+      case 'p-resetrec': E.resetRecords(); break;
+      case 'p-lesson': E.start(E.lesson.base); break;
+      case 'jall': journalModal(); break;
+      case 'csv': downloadCSV(); break;
       case 'p-skipnarr': E.skipNarration(); break;
       case 'r-minus': E.setRounds(E.rounds - 1); refreshPanel(); break;
       case 'r-plus': E.setRounds(E.rounds + 1); refreshPanel(); break;
@@ -665,8 +781,7 @@ window.RL = window.RL || {};
       case 'serial': try { await Snr.connectSerial(); refreshPanel(); } catch (err) { alert(err.message); } break;
       case 'mic': try { if (Snr.source === 'mic') Snr.disconnectMic(); else await Snr.connectMic(); refreshPanel(); } catch (err) { alert('Микрофон недоступен: ' + err.message); } break;
       case 'export': {
-        const blob = new Blob([RL.Journal.exportJSON()], { type: 'application/json' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'robiclab-start-journal.json'; a.click(); break;
+        download('robiclab-start-journal.json', RL.Journal.exportJSON(), 'application/json'); break;
       }
       case 'clear': if (confirm('Очистить журнал и альбом группы в этом браузере?')) { RL.Journal.clear(); stageKey = ''; refreshPanel(); renderStage(E.state || { screen: 'map' }, E.lesson); } break;
     }
@@ -676,6 +791,7 @@ window.RL = window.RL || {};
     if (e.target.dataset.rhl) { Snr.sim.rh[e.target.dataset.rhl] = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; }
     if (e.target.dataset.luxl) { Snr.sim.light[e.target.dataset.luxl] = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; }
     if (e.target.dataset.lvl) { Snr.sim.sound[e.target.dataset.lvl] = +e.target.value; e.target.nextElementSibling.textContent = e.target.value; }
+    if (e.target.id === 'pinlabel') pinDraft = e.target.value;
     if (e.target.id === 'autopilot') { autopilot = e.target.checked; apKey = ''; }
   });
 
@@ -683,7 +799,11 @@ window.RL = window.RL || {};
   $('#showpanel').addEventListener('click', togglePresent);
 
   document.addEventListener('keydown', e => {
+    if (e.target.id === 'pinlabel' && e.key === 'Enter') { E.pin(pinDraft); pinDraft = ''; refreshPanel(); return; }
     if (e.target.tagName === 'INPUT') return;
+    if (e.code === 'Escape') { const m = $('#jmodal'); if (m) m.remove(); else E.pause(); }
+    if (e.code === 'KeyR' && !e.ctrlKey && !e.metaKey) E.sayAgain();
+    if (e.code === 'Enter' && e.target.tagName !== 'BUTTON' && E.state && E.state.lab) E.pin(pinDraft);
     if (e.code === 'Space') { e.preventDefault(); if (!e.repeat) { Snr.channel === 'rh' ? Snr.rh('breath') : Snr.channel === 'light' ? Snr.light('open') : Snr.channel === 'sound' ? Snr.sound('noise') : Snr.hold('hand'); refreshPanel(); } }
     if (e.code === 'KeyP' || e.key === 'з') togglePresent();
     if (e.code === 'ArrowRight') E.next();
@@ -701,5 +821,6 @@ window.RL = window.RL || {};
   if (q.has('present')) app.classList.add('present');
   if (q.get('demo') !== null) E.demo(q.get('lesson') || 'heat-1', +q.get('demo'));
   else if (q.get('lesson')) E.start(q.get('lesson'));
+  else if (q.get('lab')) E.startLab(q.get('lab'), houseName(q.get('lab')));
   else E.showMap();
 })();

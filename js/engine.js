@@ -22,9 +22,11 @@ RL.Voice = (function () {
       src.connect(dry).connect(ctx.destination); src.connect(d); d.connect(fb).connect(d); d.connect(wet).connect(ctx.destination);
     } catch (e) {}
   }
-  function stopCurrent() { if (cur) { cur.onended = cur.onerror = null; cur.pause(); cur = null; } clearTimeout(timer); if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+  let held = false, heldTimer = false;   // пауза: текущая реплика стоит, очередь ждёт
+  function stopCurrent() { if (cur) { cur.onended = cur.onerror = null; cur.pause(); cur = null; } clearTimeout(timer); heldTimer = false; if ('speechSynthesis' in window) speechSynthesis.cancel(); }
   function playNext() {
     clearTimeout(timer);
+    if (held) { heldTimer = true; return; }
     const part = queue.shift();
     if (!part) { speaker(null); return; }
     const who = part.who || 'robik';
@@ -49,8 +51,11 @@ RL.Voice = (function () {
     speechSynthesis.speak(u);
   }
   function show() { RL.Voice.last = RL.Voice.lastParts.map(p => p.text).join(' '); document.dispatchEvent(new CustomEvent('rl:say', { detail: RL.Voice.last })); }
-  function run(parts) { stopCurrent(); queue = parts.filter(p => p.text); RL.Voice.lastParts = queue.slice(); show(); playNext(); }
+  function run(parts) { stopCurrent(); held = false; queue = parts.filter(p => p.text); RL.Voice.lastParts = queue.slice(); show(); playNext(); }
   return {
+    // пауза для всех: mp3 встаёт на месте, синтезатор замирает, следующая реплика ждёт
+    hold() { if (held) return; held = true; if (cur) cur.pause(); if ('speechSynthesis' in window && speechSynthesis.speaking) speechSynthesis.pause(); if (timer) { clearTimeout(timer); timer = null; heldTimer = true; } },
+    release() { if (!held) return; held = false; if (cur) cur.play().catch(() => {}); if ('speechSynthesis' in window) speechSynthesis.resume(); if (heldTimer) { heldTimer = false; playNext(); } },
     say(text, who = 'robik') { run([{ text, who }]); },
     sayParts(parts) { run(parts); },
     // добавить реплику в конец очереди, не перебивая говорящего
@@ -95,6 +100,30 @@ RL.Journal = {
     // Формат выгрузки в COR — предположение, сверить с командой COR.
     return JSON.stringify({ format: 'robiclab-start-journal/0.1', group: 'Солнышко', exported: new Date().toISOString(), entries: RL.Journal.list() }, null, 2);
   },
+  // понятное описание записи: догадки, замеры, итог (для таблицы и CSV)
+  describe(e) {
+    const L = RL.content[e.base || e.lesson], unit = e.unit === '°' ? '°' : '';
+    const num = v => v === null || v === undefined ? '' : (Math.round(v * 10) / 10 + unit);
+    if (e.kind === 'lab') return { type: 'Лаборатория', votes: '', guessed: '',
+      measures: (e.marks || []).map(m => m.label + ': ' + num(m.v)).join(', '),
+      outcome: e.max !== null && e.max !== undefined ? 'от ' + num(e.min) + ' до ' + num(e.max) : '' };
+    const m = L && L.steps.find(x => x.type === 'measure'), g = L && L.steps.find(x => x.type === 'guess');
+    const lbl = k => { const c = m && m.conditions.find(x => x.key === k); return c ? c.label : k; };
+    const opt = k => { const o = g && g.options.find(x => x.key === k); return o ? o.label : lbl(k); };
+    return { type: 'Урок',
+      votes: Object.entries(e.votes || {}).map(([k, n]) => opt(k) + ' — ' + n).join(', '),
+      guessed: e.guessed === true ? 'да' : e.guessed === false ? 'нет' : '',
+      measures: Object.entries(e.results || {}).map(([k, v]) => lbl(k) + ': ' + num(v)).join(', '),
+      outcome: e.winner === 'tie' ? 'почти одинаково' : e.winner ? 'больше всего — ' + lbl(e.winner).toLowerCase() : '' };
+  },
+  // CSV для Excel: точка с запятой и BOM, чтобы русские буквы открылись правильно
+  exportCSV() {
+    const q = s => '"' + String(s === undefined || s === null ? '' : s).replace(/"/g, '""') + '"';
+    const head = ['Дата', 'Время', 'Занятие', 'Тип', 'Минут', 'Звёзды', 'Догадки группы', 'Угадали', 'Замеры', 'Итог'];
+    const rows = RL.Journal.list().map(e => { const d = new Date(e.date), x = RL.Journal.describe(e);
+      return [d.toLocaleDateString('ru-RU'), d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }), e.title, x.type, e.minutes, e.stars, x.votes, x.guessed, x.measures, x.outcome]; });
+    return '﻿' + [head].concat(rows).map(r => r.map(q).join(';')).join('\r\n');
+  },
   markSynced(dates) { const l = RL.Journal.list().map(e => dates.includes(e.date) ? { ...e, synced: true } : e); try { localStorage.setItem('rl.journal', JSON.stringify(l)); } catch (e) {} },
   clear() { try { localStorage.removeItem('rl.journal'); localStorage.removeItem('rl.album'); } catch (e) {} }
 };
@@ -108,8 +137,12 @@ RL.Engine = (function () {
   let roundsPref = 0;    // число туров «Согрей Робика» из пульта (0 — как в контент-пакете)
 
   function emit() { subs.forEach(fn => fn(S, L)); }
-  function later(ms, fn) { const id = setTimeout(fn, ms); timers.push(id); }
-  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  // таймеры шагов умеют вставать на паузу и продолжать с того же места
+  function arm(t, ms) { t.due = performance.now() + ms; t.id = setTimeout(() => { timers = timers.filter(x => x !== t); t.fn(); }, ms); }
+  function later(ms, fn) { const t = { fn }; timers.push(t); if (S && S.paused) t.left = ms; else arm(t, ms); }
+  function clearTimers() { timers.forEach(t => clearTimeout(t.id)); timers = []; }
+  function freezeTimers() { const now = performance.now(); timers.forEach(t => { clearTimeout(t.id); t.left = Math.max(0, t.due - now); }); }
+  function thawTimers() { timers.forEach(t => arm(t, t.left || 0)); }
   function step() { return L && L.steps[S.i]; }
   // звезда — за действие детей (догадка, замер, тур игры), один раз за каждое
   function award(key) { if (!S || S.awarded[key]) return; S.awarded[key] = true; S.stars++; }
@@ -122,9 +155,11 @@ RL.Engine = (function () {
 
   function enterStep(i) {
     clearTimers();
+    S.paused = false;   // переход по шагам снимает паузу
     S.i = Math.max(0, Math.min(i, L.steps.length - 1));
     const st = step();
     S.screen = st.type; S.reaction = null;
+    if (st.type === 'lab') { S.condStartedAt = performance.now(); RL.Sensor.setDevice({ eyes: 'wait' }); }
     if (st.type === 'intro') { RL.Sensor.setDevice({ eyes: (st.device && st.device.eyes) || 'blue' }); RL.Voice.sayParts([{ text: st.narration, who: 'narrator' }, { text: st.say, who: 'robik' }]); }
     if (st.type === 'guess') { st.options.forEach(o => { if (!(o.key in S.votes)) S.votes[o.key] = 0; }); RL.Voice.sayParts([{ text: st.say, who: 'robik' }].concat(st.options.map(o => ({ text: o.say, who: o.who || 'robik' })))); }
     if (st.type === 'measure') { S.cond = 0; S.results = {}; startCondition(); }
@@ -167,15 +202,53 @@ RL.Engine = (function () {
   function finish() {
     if (S.saved) return; S.saved = true;
     RL.Journal.addSticker(L.house);
-    RL.Journal.add({ date: new Date().toISOString(), lesson: L.id, title: L.title, votes: { ...S.votes },
-      results: { ...S.results }, unit: L.unit, stars: S.stars, winner: S.winner, gameRounds: S.game ? S.game.won : 0, wakes: S.game && S.game.wakes,
+    // угадала ли группа: за победителя проголосовало больше всего детей
+    const top = Math.max(0, ...Object.values(S.votes));
+    const guessed = S.winner && S.winner !== 'tie' && top > 0 ? S.votes[S.winner] === top : null;
+    RL.Journal.add({ date: new Date().toISOString(), kind: 'lesson', lesson: L.id, title: L.title, votes: { ...S.votes },
+      results: { ...S.results }, unit: L.unit, stars: S.stars, winner: S.winner, guessed, gameRounds: S.game ? S.game.won : 0, wakes: S.game && S.game.wakes,
       minutes: Math.max(1, Math.round((Date.now() - S.startedAt) / 60000)) });
   }
+  // лаборатория пишется в журнал при выходе, если дети что-то нашли или были в ней дольше 30 с
+  function saveLab() {
+    if (!L || !L.lab || !S || S.saved) return; S.saved = true;
+    const lab = S.lab; if (!lab.marks.length && Date.now() - S.startedAt < 30000) return;
+    RL.Journal.add({ date: new Date().toISOString(), kind: 'lab', lesson: L.id, base: L.base, title: L.title, unit: L.unit, stars: S.stars,
+      marks: lab.marks.map(m => ({ label: m.label, v: m.v })), min: lab.min, max: lab.max,
+      minutes: Math.max(1, Math.round((Date.now() - S.startedAt) / 60000)) });
+  }
+  const LAB_IDLE = 'Мерьте что хотите — я покажу! 🔬';
+  const r1 = v => v === null || v === undefined ? v : Math.round(v * 10) / 10;
 
   // реакция на каждое измерение
   RL.Sensor.on(s => {
     if (!S || S.paused || S.i < 0) return;
     const st = step();
+    // свободная лаборатория: Робик комментирует, рекорды обновляются, находки отмечают дети
+    if (st.type === 'lab') {
+      const lab = S.lab, now = performance.now(), el = (now - S.condStartedAt) / 1000;
+      if (el > 1.5) {   // дать датчику успокоиться после смены канала
+        const v = s.v, eps = L.channel === 't' ? 0.4 : 3;
+        if (lab.max === null) { lab.max = lab.min = r1(v); lab.recHi = lab.recLo = v; }
+        lab.max = r1(Math.max(lab.max, v)); lab.min = r1(Math.min(lab.min, v));
+        if (el > 4 && now - (lab.recAt || 0) > 3000) {
+          if (v > lab.recHi + eps) { lab.recHi = v; lab.rec = { kind: 'max', at: now }; lab.recAt = now; }
+          else if (v < lab.recLo - eps) { lab.recLo = v; lab.rec = { kind: 'min', at: now }; lab.recAt = now; }
+        }
+        lab.recHi = Math.max(lab.recHi, v); lab.recLo = Math.min(lab.recLo, v);
+      }
+      const prev = S.reaction;
+      if (st.levels) {
+        const lv = s.v >= st.levels.loud ? 'loud' : s.v <= st.levels.quiet ? 'quiet' : 'mid';
+        S.reaction = st.reactions[lv];
+        RL.Sensor.setDevice({ eyes: st.levelEyes ? st.levelEyes[lv] : lv === 'loud' ? (L.channel === 'light' ? 'bright' : 'loud') : lv === 'quiet' ? 'happy' : 'wait' });
+      }
+      else if (s.trend === 'rising') { S.reaction = st.reactions.rising; RL.Sensor.setDevice({ eyes: 'warm' }); }
+      else if (s.trend === 'falling') { S.reaction = st.reactions.falling; RL.Sensor.setDevice({ eyes: 'blue' }); }
+      else if (RL.Sensor.isStable(2)) { S.reaction = LAB_IDLE; RL.Sensor.setDevice({ eyes: 'wait' }); }
+      if (el > 1.5 && prev !== S.reaction && S.reaction && S.reaction !== LAB_IDLE && !RL.Voice.speaking && now - (S.saidAt || 0) > 3500) { S.saidAt = now; RL.Voice.say(S.reaction); }
+      emit(); return;
+    }
     if (st.type === 'measure' && S.results[st.conditions[S.cond].key] === undefined) {
       const prev = S.reaction;
       if (st.levels) {                       // реакция по уровню (громкость)
@@ -255,13 +328,40 @@ RL.Engine = (function () {
   return {
     subscribe(fn) { subs.add(fn); if (S) fn(S, L); },
     get state() { return S; }, get lesson() { return L; },
-    showMap() { clearTimers(); S = S || fresh(null); S.screen = 'map'; S.i = -1; L = null; RL.Voice.say('Это Городок Почему. Здесь в каждом доме живёт своя загадка. Куда пойдём сегодня?', 'narrator'); emit(); },
-    start(lessonId) { L = RL.content[lessonId]; RL.Sensor.setChannel(L.channel); S = fresh(lessonId); enterStep(0); },
+    // свободная лаборатория домика: тот же датчик и реплики, что в уроке, но без сценария
+    startLab(lessonId, name) {
+      saveLab(); clearTimers();
+      const base = RL.content[lessonId], m = base.steps.find(x => x.type === 'measure');
+      L = { id: 'lab-' + base.house, lab: true, base: lessonId, house: base.house, channel: base.channel, unit: base.unit,
+            title: 'Лаборатория · ' + (name || base.title), minutes: 10, age: base.age, conditions: m.conditions,
+            steps: [{ type: 'lab', title: 'Свободные опыты', reactions: m.reactions, levels: m.levels, levelEyes: m.levelEyes,
+              hint: 'Дети мерят что угодно: ладонь, окно, батарею, свои предметы. Нажмите «Запомнить», когда показание встало, — находка попадёт в ряд, и их можно сравнить. Неожиданное значение — тоже результат.' }] };
+      RL.Sensor.setChannel(L.channel); S = fresh(L.id); S.lab = { min: null, max: null, marks: [], count: 0, rec: null };
+      enterStep(0);
+    },
+    // запомнить текущее показание как находку (не больше 8 на экране)
+    pin(label) {
+      if (!S || !S.lab || S.paused) return;
+      const lab = S.lab; lab.count++;
+      lab.marks.push({ n: lab.count, label: (label || '').trim() || 'Находка ' + lab.count, v: r1(RL.Sensor.mean(1)) });
+      if (lab.marks.length > 8) lab.marks.shift();
+      if (lab.count <= 5) award('pin' + lab.count);
+      RL.Sensor.setDevice({ eyes: 'happy', vibrate: 1 }); emit();
+    },
+    unpin(i) { if (S && S.lab) { S.lab.marks.splice(i, 1); emit(); } },
+    resetRecords() { if (S && S.lab) { const v = RL.Sensor.value; Object.assign(S.lab, { min: r1(v), max: r1(v), recHi: v, recLo: v, rec: null }); emit(); } },
+    showMap() { saveLab(); clearTimers(); S = S || fresh(null); S.screen = 'map'; S.i = -1; L = null; RL.Voice.say('Это Городок Почему. Здесь в каждом доме живёт своя загадка. Куда пойдём сегодня?', 'narrator'); emit(); },
+    start(lessonId) { saveLab(); L = RL.content[lessonId]; RL.Sensor.setChannel(L.channel); S = fresh(lessonId); enterStep(0); },
     next() { if (!L) return; if (S.i < L.steps.length - 1) enterStep(S.i + 1); },
     back() { if (!L) return; enterStep(S.i - 1); },
     go(i) { if (!L) return; enterStep(i); },
     repeat() { if (!L) return; enterStep(S.i); },
-    pause(p) { if (!S) return; S.paused = p === undefined ? !S.paused : p; if (S.paused) speechSynthesis.cancel(); emit(); },
+    pause(p) {
+      if (!S || !L) return; const want = p === undefined ? !S.paused : !!p; if (want === S.paused) return;
+      S.paused = want;
+      if (want) { freezeTimers(); RL.Voice.hold(); } else { thawTimers(); RL.Voice.release(); }
+      emit();
+    },
     vote(key, d) { if (!S || !(key in S.votes)) return; S.votes[key] = Math.max(0, S.votes[key] + d); if (d > 0) award('guess'); emit(); },
     fix() { const st = step(); if (st && st.type === 'measure' && S.results[st.conditions[S.cond].key] === undefined) recordCondition(RL.Sensor.value); },
     sayAgain() { RL.Voice.repeat(); },
