@@ -8,4 +8,4 @@
 - Прямая ссылка на шаг: `?lesson=light-1&demo=4&present`
 
 Прототип: графика сгенерирована (Codex, Higgsfield), голоса — Higgsfield Seed Audio.
-Музыка — Suno (11 тем в `audio/music/`, описание в `audio/music/BRIEF.md`). Звуковые эффекты — `audio/sfx/`, их делает скрипт `python3 audio/sfx/make_sfx.py`; если файла нет, `RL.Sfx` играет запасной синтезированный звук.
+Музыка — Suno (12 тем в `audio/music/`, описание в `audio/music/BRIEF.md`). Звуковые эффекты — `audio/sfx/`, их делает скрипт `python3 audio/sfx/make_sfx.py`; если файла нет, `RL.Sfx` играет запасной синтезированный звук.
