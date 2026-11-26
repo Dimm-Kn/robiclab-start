@@ -1,4 +1,4 @@
-// Игровые эффекты: синтезированные звуки (без файлов) и частицы.
+// Игровые эффекты: звуки (файлы audio/sfx, запасной вариант — синтез) и частицы.
 window.RL = window.RL || {};
 
 RL.Sfx = (function () {
@@ -12,7 +12,8 @@ RL.Sfx = (function () {
     o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + 0.05);
   }
   const notes = { C5: 523, E5: 659, G5: 784, C6: 1047, A4: 440, D5: 587 };
-  return {
+  // запасной вариант — синтезированные звуки, если файла нет или он не загрузился
+  const synth = {
     pop() { tone(420, 0, 0.12, 'triangle', 0.22, 2.2); },
     tap() { tone(700, 0, 0.06, 'square', 0.06); },
     success() { [notes.C5, notes.E5, notes.G5].forEach((f, i) => tone(f, i * 0.09, 0.25, 'triangle', 0.16)); },
@@ -20,9 +21,27 @@ RL.Sfx = (function () {
     melt() { tone(900, 0, 0.35, 'sine', 0.14, 0.4); tone(1400, 0.08, 0.25, 'sine', 0.07, 0.5); },
     chime() { [notes.G5, notes.C6, notes.E5 * 2].forEach((f, i) => tone(f, i * 0.14, 0.5, 'sine', 0.13)); },
     whoosh() { tone(200, 0, 0.35, 'sawtooth', 0.04, 4); },
-    star() { tone(1320, 0, 0.12, 'triangle', 0.12); tone(1760, 0.08, 0.22, 'sine', 0.1); },
-    set enabled(v) { on = v; }, get enabled() { return on; }
+    star() { tone(1320, 0, 0.12, 'triangle', 0.12); tone(1760, 0.08, 0.22, 'sine', 0.1); }
   };
+  // основной вариант — файлы audio/sfx/<имя>.mp3 (делает audio/sfx/make_sfx.py); громкость подобрана под голос
+  const VOL = { pop: 0.4, tap: 0.22, success: 0.8, fanfare: 0.85, melt: 0.8, chime: 0.75, whoosh: 0.2, star: 0.75 };
+  const files = {};
+  for (const name in VOL) {
+    const a = new Audio('audio/sfx/' + name + '.mp3');
+    a.preload = 'auto'; a.onerror = () => { a.dead = true; };
+    files[name] = a;
+  }
+  function play(name) {
+    if (!on) return;
+    const src = files[name];
+    if (!src || src.dead || src.readyState < 2) { synth[name](); return; }
+    const a = src.cloneNode();            // копия, чтобы одинаковые звуки могли наложиться
+    a.volume = VOL[name];
+    const p = a.play(); if (p) p.catch(() => {});
+  }
+  const api = { set enabled(v) { on = v; }, get enabled() { return on; } };
+  for (const name in VOL) api[name] = () => play(name);
+  return api;
 })();
 
 RL.Fx = {
