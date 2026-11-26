@@ -849,7 +849,7 @@ window.RL = window.RL || {};
   setInterval(updateLive, 50);
   // экран загрузки: сначала карта и герои, чтобы на медленном интернете не было белых пятен
   function preload(done) {
-    const list = ['img/map_empty.jpg', 'img/map.jpg'].concat(...['asya', 'tim', 'robik'].map(n => RL.Rig && RL.Rig.srcs ? RL.Rig.srcs(n) : []));
+    const list = ['img/map_empty.jpg'].concat(...['asya', 'tim', 'robik'].map(n => RL.Rig && RL.Rig.srcs ? RL.Rig.srcs(n) : []));
     const ov = document.createElement('div'); ov.className = 'loading';
     ov.innerHTML = '<div class="lbox"><div class="lt">Городок Почему</div><div class="lbar"><i id="lfill"></i></div><div class="ln">Загружаем картинки…</div></div>';
     stage.appendChild(ov);
