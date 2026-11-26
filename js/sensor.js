@@ -24,10 +24,10 @@ RL.Sensor = (function () {
 
   // ---------- симулятор ----------
   const sim = {
-    room: 23, hand: 34, water: 22, tau: 1.6, holding: null,                   // температура
-    sound: { quiet: 36, open: 74, scarf: 52, bubble: 58, paper: 65, noise: 80, state: 'quiet' },  // громкость
-    light: { dark: 3, room: 22, open: 92, glass: 68, paper: 41, card: 6, state: 'room' },         // яркость, %
-    rh:    { room: 41, air: 41, towel: 44, sponge: 72, breath: 87, state: 'room' }                // влажность, %
+    room: 23, hand: 34, water: 22, table: 23, window: 19, radiator: 30.5, floor: 21, tau: 1.6, holding: null,                   // температура
+    sound: { quiet: 36, open: 74, scarf: 52, bubble: 58, paper: 65, noise: 80, whisper: 44, voice: 60, clap: 73, stomp: 67, state: 'quiet' },  // громкость
+    light: { dark: 3, room: 22, open: 92, glass: 68, paper: 41, card: 6, window: 86, lamp: 66, corner: 17, under: 6, state: 'room' },         // яркость, %
+    rh:    { room: 41, air: 41, towel: 44, sponge: 72, breath: 87, coldcup: 46, plant: 55, warmcup: 79, state: 'room' }                // влажность, %
   };
   function simTick(dt) {
     if (channel === 'rh') {                       // влажность: растёт быстро (дыхание), уходит медленно
@@ -45,7 +45,7 @@ RL.Sensor = (function () {
       raw += (target - raw) * (1 - Math.exp(-dt / 0.25));
       return raw + (Math.random() + Math.random() - 1) * 2.2;
     }
-    const target = sim.holding === 'hand' ? sim.hand : sim.holding === 'water' ? sim.water : sim.room;
+    const target = sim.holding && typeof sim[sim.holding] === 'number' ? sim[sim.holding] : sim.room;   // рука, вода, места в комнате
     const tau = sim.holding ? sim.tau : sim.tau * 2.5;   // остывает медленнее, чем греется
     raw += (target - raw) * (1 - Math.exp(-dt / tau));
     return raw + (Math.random() - 0.5) * 0.08;

@@ -440,3 +440,23 @@ table.j button.x { border:none; background:none; color:#b33; cursor:pointer; fon
 .jscroll { overflow:auto; padding:8px 16px 16px; }
 table.j.full { font-size:13px; }
 table.j.full td { vertical-align:top; }
+
+/* ---------- v11: меню домика, несколько уроков ---------- */
+.hmenu { position:absolute; inset:0; z-index:25; background:rgba(20,26,38,.55); backdrop-filter:blur(.3cqw); display:flex; align-items:center; justify-content:center; animation:sayIn .3s; }
+.hbox { position:relative; background:#fff8ec; border:.45cqw solid var(--wood); border-radius:2.6cqw; padding:2cqw 2.6cqw 2.6cqw; box-shadow:0 .8cqw 0 var(--wood-d), 0 2cqw 4cqw rgba(0,0,0,.45); max-width:86cqw; }
+.hbox .ht { font-family:var(--game-font); font-size:3.4cqw; color:var(--wood-d); text-align:center; margin-bottom:1.6cqw; }
+.hcards { display:flex; gap:1.8cqw; flex-wrap:wrap; justify-content:center; }
+.hcard { position:relative; width:22cqw; min-height:20cqw; border:.4cqw solid #fff; border-radius:2cqw; background:linear-gradient(#fffdf6, #ffe9b8); box-shadow:0 .6cqw 0 #d9b46a, 0 1cqw 1.6cqw rgba(0,0,0,.25);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1cqw; padding:1.4cqw; font-family:var(--game-font); cursor:pointer; transition:transform .15s; }
+.hcard:hover { transform:translateY(-.4cqw) rotate(-1deg); }
+.hcard .hn { position:absolute; left:1cqw; top:1cqw; width:4cqw; height:4cqw; border-radius:50%; background:var(--candy); color:#6b3b12; display:flex; align-items:center; justify-content:center; font-size:2.2cqw; box-shadow:0 .3cqw 0 var(--candy-d); }
+.hcard .hi { font-size:4cqw; letter-spacing:.4cqw; }
+.hcard .hl { font-size:2.2cqw; color:#6b3b12; text-align:center; line-height:1.15; }
+.hcard .hd { position:absolute; right:-1cqw; top:-1cqw; width:4cqw; height:4cqw; border-radius:50%; background:#5cc44a; color:#fff; border:.3cqw solid #fff; display:flex; align-items:center; justify-content:center; font-size:2cqw; }
+.hcard.lab { background:linear-gradient(#f2fffd, #c9efe9); box-shadow:0 .6cqw 0 #7cc7bd, 0 1cqw 1.6cqw rgba(0,0,0,.25); }
+.hcard.lab .hn { background:#fff; box-shadow:0 .3cqw 0 #7cc7bd; }
+.hbox .hx { position:absolute; right:-2cqw; top:-2cqw; width:5cqw; height:5cqw; font-size:2.2cqw; }
+.lessons { display:flex; flex-direction:column; gap:3px; margin:0 0 6px 26px; }
+.lessons .lsn { text-align:left; background:#fff; border:1px solid #c4ccd6; border-radius:6px; padding:5px 8px; font-size:13px; cursor:pointer; }
+.lessons .lsn:hover { border-color:var(--teal); }
+.lessons .lsn.done { color:var(--teal); }
