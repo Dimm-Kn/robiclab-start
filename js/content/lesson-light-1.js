@@ -12,7 +12,7 @@ RL.content['light-1'] = {
   minutes: 14,
   channel: 'light',        // канал датчика: освещённость
   unit: '%',
-  sticker: { icon: '☀️', name: 'Лучик', img: 'img/sticker_ray.png' },
+  sticker: { icon: '☀️', name: 'Лучик', img: 'img/sticker_ray.webp' },
   steps: [
     {
       id: 'intro', type: 'intro', title: 'Вступление: маяк погас',

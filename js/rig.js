@@ -18,6 +18,9 @@ RL.Rig = (function () {
     Object.values(spec.overlays || {}).forEach(o => img(o.src));
   }
   const has = name => !!specs[name];
+  // картинки частей героя — для экрана загрузки
+  const srcs = name => specs[name] ? spec_srcs(specs[name]) : [];
+  const spec_srcs = sp => sp.parts.map(p => p.src).concat(Object.values(sp.overlays || {}).map(o => o.src));
 
   // ---------- жесты: функция (время с начала, длительность) → целевые углы рук ----------
   // Углы АБСОЛЮТНЫЕ, в градусах от «рука висит вниз»: + наружу (90 — горизонтально в сторону, 180 — вверх),
@@ -209,5 +212,5 @@ RL.Rig = (function () {
     return r;
   }
 
-  return { define, has, create, GESTURES, MOODS };
+  return { define, has, srcs, create, GESTURES, MOODS };
 })();

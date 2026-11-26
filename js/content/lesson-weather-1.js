@@ -12,7 +12,7 @@ RL.content['weather-1'] = {
   minutes: 14,
   channel: 'rh',           // канал датчика: влажность воздуха
   unit: '%',
-  sticker: { icon: '💧', name: 'Капелька', img: 'img/sticker_drop.png' },
+  sticker: { icon: '💧', name: 'Капелька', img: 'img/sticker_drop.webp' },
   steps: [
     {
       id: 'intro', type: 'intro', title: 'Вступление: засуха',

@@ -11,7 +11,7 @@ RL.content['light-2'] = {
   minutes: 14,
   channel: 'light',
   unit: '%',
-  sticker: { icon: '☀️', name: 'Лучик', img: 'img/sticker_ray.png' },
+  sticker: { icon: '☀️', name: 'Лучик', img: 'img/sticker_ray.webp' },
   steps: [
     {
       id: 'intro', type: 'intro', title: 'Вступление: где читать книжку',

@@ -460,3 +460,12 @@ table.j.full td { vertical-align:top; }
 .lessons .lsn { text-align:left; background:#fff; border:1px solid #c4ccd6; border-radius:6px; padding:5px 8px; font-size:13px; cursor:pointer; }
 .lessons .lsn:hover { border-color:var(--teal); }
 .lessons .lsn.done { color:var(--teal); }
+
+/* ---------- экран загрузки ---------- */
+.loading { position:absolute; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; background:radial-gradient(circle at 50% 40%, #ffe9b8, #f2b25c); transition:opacity .45s; }
+.loading.out { opacity:0; pointer-events:none; }
+.loading .lbox { text-align:center; }
+.loading .lt { font-family:var(--game-font); font-size:5cqw; color:#fff8e0; text-shadow:0 .4cqw 0 var(--wood-d); margin-bottom:2cqw; }
+.loading .lbar { width:40cqw; height:2.4cqw; border-radius:1.2cqw; background:rgba(94,58,30,.25); border:.3cqw solid #fff; overflow:hidden; margin:0 auto; }
+.loading .lbar i { display:block; height:100%; width:0; background:linear-gradient(90deg, var(--candy), #ff9f43); transition:width .25s; }
+.loading .ln { margin-top:1.4cqw; font-family:var(--game-font); font-size:1.8cqw; color:var(--wood-d); }

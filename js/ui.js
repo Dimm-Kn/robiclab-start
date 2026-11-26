@@ -26,9 +26,9 @@ window.RL = window.RL || {};
     { id: 'acid',   name: 'Теплица',        icon: '🍋', topic: 'Кислое и щелочное',   box: [69.2, 55.9, 23.4, 25.3] },
     { id: 'weather',name: 'Метеостанция',   icon: '⛅', topic: 'Погода',              lesson: 'weather-1', box: [29.8, 1.3, 15, 18.6] }
   ];
-  const HERO = { asya: 'img/asya_full.png', tim: 'img/tim_full.png' };
-  const ROBIK = { cold: 'img/robik_cold.png', wait: 'img/robik_think.png', neutral: 'img/robik_think.png', warm: 'img/robik_warm.png',
-                  happy: 'img/robik_happy.png', loud: 'img/robik_ears.png', shh: 'img/robik_sneak.png', bright: 'img/robik_happy.png' };
+  const HERO = { asya: 'img/asya_full.webp', tim: 'img/tim_full.webp' };
+  const ROBIK = { cold: 'img/robik_cold.webp', wait: 'img/robik_think.webp', neutral: 'img/robik_think.webp', warm: 'img/robik_warm.webp',
+                  happy: 'img/robik_happy.webp', loud: 'img/robik_ears.webp', shh: 'img/robik_sneak.webp', bright: 'img/robik_happy.webp' };
   const STEP_ICON = { intro: '🎬', guess: '🤔', measure: '📏', compare: '🏆', game: '🎮', sticker: '📒', lab: '🔬' };
   // уроки домика берутся из контент-пакетов (house), по порядку номеров
   HOUSES.forEach(x => { x.lessons = Object.values(RL.content).filter(l => l.house === x.id).map(l => l.id).sort(); x.lesson = x.lessons[0]; });
@@ -110,7 +110,7 @@ window.RL = window.RL || {};
   const SLOTS = [[19.9, 27.2], [30.5, 27.2], [41.1, 27.2], [19.9, 46.4], [30.5, 46.4], [41.1, 46.4], [19.9, 65.6], [30.5, 65.6], [41.1, 65.6]];
   const moodOf = eyes => ({ blue: 'cold', warm: 'warm', happy: 'happy', wait: 'wait', loud: 'loud', bright: 'bright' }[eyes] || 'neutral');
   // спрайты из Codex (img/codex): подставляются, только если файл есть
-  const CODEX = {}; ['owlet_half', 'owlet_awake', 'howto_cup', 'howto_probe', 'howto_spot', 'howto_pass', 'why_hand', 'why_soft'].forEach(n => { const i = new Image(); i.onload = () => { CODEX['img/codex/' + n + '.png'] = true; stageKey = ''; /* перерисовать экран с новой картинкой */ }; i.src = 'img/codex/' + n + '.png'; });
+  const CODEX = {}; ['owlet_half', 'owlet_awake', 'howto_cup', 'howto_probe', 'howto_spot', 'howto_pass', 'why_hand', 'why_soft'].forEach(n => { const i = new Image(); i.onload = () => { CODEX['img/codex/' + n + '.webp'] = true; stageKey = ''; /* перерисовать экран с новой картинкой */ }; i.src = 'img/codex/' + n + '.webp'; });
   const has = src => !!(src && CODEX[src]);
   // карта без нарисованных героев (Codex): тогда по ней гуляют живые Ася, Тим и Робик
   let mapEmpty = false; { const i = new Image(); i.onload = () => { mapEmpty = true; if (E.state && E.state.screen === 'map') { stageKey = ''; renderStage(E.state, E.lesson); } }; i.src = 'img/map_empty.jpg'; }
@@ -150,11 +150,11 @@ window.RL = window.RL || {};
     }, 700);
   }
   const howto = (src, cls = '') => has(src) ? `<div class="howto ${cls}"><img src="${src}" alt=""></div>` : '';
-  Object.values(ROBIK).concat(Object.values(HERO), ['img/owlet.png', 'img/owl_parents.png', 'img/bg_snow.jpg']).forEach(src => { const i = new Image(); i.src = src; });
+  Object.values(ROBIK).concat(Object.values(HERO), ['img/owlet.webp', 'img/owl_parents.webp', 'img/bg_snow.jpg']).forEach(src => { const i = new Image(); i.src = src; });
 
   // ---------- кусочки разметки ----------
   // настроение Робика по его прежней картинке (для скелетного Робика картинка не нужна)
-  const MOOD_OF = { 'img/robik_cold.png': 'cold', 'img/robik_think.png': 'wait', 'img/robik_warm.png': 'warm', 'img/robik_happy.png': 'happy', 'img/robik_ears.png': 'loud', 'img/robik_sneak.png': 'shh' };
+  const MOOD_OF = { 'img/robik_cold.webp': 'cold', 'img/robik_think.webp': 'wait', 'img/robik_warm.webp': 'warm', 'img/robik_happy.webp': 'happy', 'img/robik_ears.webp': 'loud', 'img/robik_sneak.webp': 'shh' };
   const RIG_H = { robik: 1.04, asya: 1.02, tim: 1.02 };   // поправка высоты: у рига другие поля, чем у картинки
   function look(a, src, mood) { if (!a) return; if (a.rig) a.rig.mood = mood || MOOD_OF[src] || 'neutral'; else if (!a.el.src.endsWith(src.slice(3))) a.el.src = src; }
   const actor = (name, src, x, y, h, mode = 'stand', extra = '') => (RL.Rig && RL.Rig.has(name))
@@ -166,8 +166,8 @@ window.RL = window.RL || {};
   const owls = () => owlRig()
     ? `<canvas class="actor rig a-parents" data-actor="parents" data-rig="owl_parents" data-mode="stand" data-x="16.19" data-y="44.55" data-breathe="0" data-depth="0" style="height:11.97cqw"></canvas>`
       + `<canvas class="actor rig a-owlet" data-actor="owlet" data-rig="owlet_sleep" data-mode="stand" data-x="85.6" data-y="27.8" data-breathe="2.6" data-depth="0" style="height:11.25cqw"></canvas>`
-    : actor('parents', 'img/owl_parents.png', 15.94, 47.8, 14.4, 'stand', 'data-breathe="2.2" data-depth="0"') +
-      actor('owlet', 'img/owlet.png', 85.6, 27.8, 11.25, 'stand', 'data-breathe="2.6" data-depth="0"');
+    : actor('parents', 'img/owl_parents.webp', 15.94, 47.8, 14.4, 'stand', 'data-breathe="2.2" data-depth="0"') +
+      actor('owlet', 'img/owlet.webp', 85.6, 27.8, 11.25, 'stand', 'data-breathe="2.6" data-depth="0"');
   const owlBg = src => owlRig() && src === 'img/bg_owl_room.jpg' ? 'img/bg_owl_room_empty.jpg' : src;
   function hud(S, L) {
     const path = L ? `<div class="path">${L.steps.map((x, k) =>
@@ -179,7 +179,7 @@ window.RL = window.RL || {};
       <div class="starbox" id="starbox"><span class="st">⭐</span><b id="starcount">${shownStars}</b></div>
     </div>`;
   }
-  const say = (text, cls = '') => `<div class="say ${cls}"><img src="img/robik_think.png" alt=""><span id="saytext">${text}</span></div>`;
+  const say = (text, cls = '') => `<div class="say ${cls}"><img src="img/robik_think.webp" alt=""><span id="saytext">${text}</span></div>`;
   // «Дальше» на экране детей — только в режиме доски и только долгим нажатием
   const holdBtn = (id, icon, cls = '') => board ? `<button class="gbtn big next ${cls}" id="${id}" title="Удерживайте 1 с">${icon}<span class="ring-prog"></span></button>` : '';
   const short = (st, k = 'say') => (st && (st.short || st[k])) || '';
@@ -211,7 +211,7 @@ window.RL = window.RL || {};
         <div class="title-sign">Городок Почему</div>
         <div class="hud"><button class="gbtn" id="repeat">🔊</button><span class="spacer"></span>
           <div class="pillbox">👦👧 «Солнышко»</div><div class="starbox"><span class="st">📒</span><b>${total}</b></div></div>
-        <div class="say map-say"><img src="img/robik_happy.png" alt=""><span>Куда пойдём сегодня?</span></div></div>`;
+        <div class="say map-say"><img src="img/robik_happy.webp" alt=""><span>Куда пойдём сегодня?</span></div></div>`;
       emit = [{ type: 'dust', x0: 36, x1: 64, y0: 25, y1: 60, rate: 4, color: '255,250,210' }];
     }
     else if (scr === 'intro') {
@@ -279,7 +279,7 @@ window.RL = window.RL || {};
         ${conds.map((c, k) => { const win = S.winner === c.key || (S.winner === 'tie' && !c.baseline);
           const snd = L.channel === 'sound';
           // для звука победитель — самый низкий столбик: над ним спит совёнок, а не корона
-          const top = win ? (snd && st.rule === 'min' ? '<div class="crown owl"><img src="img/owlet.png" alt=""><span>z</span></div>' : '<div class="crown">👑</div>') : '';
+          const top = win ? (snd && st.rule === 'min' ? '<div class="crown owl"><img src="img/owlet.webp" alt=""><span>z</span></div>' : '<div class="crown">👑</div>') : '';
           const lit = L.channel === 'light' || L.channel === 'rh', wet = L.channel === 'rh';
           const loud = wet ? `<span class="lvl">${vals[k] >= 70 ? '💧' : vals[k] >= 50 ? '🌥️' : '☀️'}</span>` : snd ? `<span class="lvl">${vals[k] >= 65 ? '🔊' : vals[k] >= 55 ? '🔉' : '🔈'}</span>` : lit ? `<span class="lvl">${vals[k] >= 70 ? '☀️' : vals[k] >= 30 ? '🌤️' : '🌑'}</span>` : '';
           return `<div class="podium n${n}" style="left:${X[k]}%">
@@ -295,12 +295,12 @@ window.RL = window.RL || {};
       const g = S.game, n = g.rounds;
       const xs = Array.from({ length: n }, (_, k) => n === 1 ? (sc.bed[0] + sc.bed[1]) / 2 : sc.bed[0] + (sc.bed[1] - sc.bed[0]) * k / (n - 1));
       h = `<div class="scr"><div class="bg" style="background-image:url(${sc.bg})"></div>
-        <img class="cloud" id="cloud" src="img/cloud.png" style="left:${sc.cloud[0]}%;top:${sc.cloud[1]}%" alt="">
-        ${xs.map((x, k) => k < g.won ? `<img class="flower ${k === g.won - 1 && g.between ? 'grow' : ''}" src="img/flower.png" style="left:${x}%;top:${sc.bedY}%" alt="">` : `<span class="sprout" style="left:${x}%;top:${sc.bedY}%">🥀</span>`).join('')}
+        <img class="cloud" id="cloud" src="img/cloud.webp" style="left:${sc.cloud[0]}%;top:${sc.cloud[1]}%" alt="">
+        ${xs.map((x, k) => k < g.won ? `<img class="flower ${k === g.won - 1 && g.between ? 'grow' : ''}" src="img/flower.webp" style="left:${x}%;top:${sc.bedY}%" alt="">` : `<span class="sprout" style="left:${x}%;top:${sc.bedY}%">🥀</span>`).join('')}
         ${actor('robik', ROBIK.warm, sc.robik[0], sc.robik[1], 15, 'hover')}
         ${world}${hud(S, L)}
         ${say(g.between ? (g.won >= g.rounds ? 'Все цветы расцвели! 🌼' : '🌧️ Дождик! Передай Робика') : 'Тур ' + g.round + ' из ' + g.rounds + ' 🌬️ Дышите на меня!')}
-        ${g.between && g.won < g.rounds ? howto('img/codex/howto_pass.png', 'g') : ''}
+        ${g.between && g.won < g.rounds ? howto('img/codex/howto_pass.webp', 'g') : ''}
         <div class="power"><span>☁️</span><div class="pbar"><div id="pbar"></div></div></div>
         ${holdBtn('next', '▶')}</div>`;
       floor = 92; prev.bedXs = xs;
@@ -309,7 +309,7 @@ window.RL = window.RL || {};
       const g = S.game;
       h = `<div class="scr night"><div class="bg" style="background-image:url(${sc.bg})"></div>
         <div class="lamp" id="lamp" style="left:${sc.lamp[0]}%;top:${sc.lamp[1]}%"><div class="ray"></div><div class="glowc"></div></div>
-        <img class="actor" data-actor="boat" data-mode="hover" data-x="24" data-y="${sc.boatY}" data-k="6" data-c="4" data-depth="0.2" src="img/boat.png" style="height:9cqw" alt="">
+        <img class="actor" data-actor="boat" data-mode="hover" data-x="24" data-y="${sc.boatY}" data-k="6" data-c="4" data-depth="0.2" src="img/boat.webp" style="height:9cqw" alt="">
         ${actor('robik', ROBIK.happy, 22, 96, 13, 'hover')}
         ${world}${hud(S, L)}
         ${say(g.done ? 'Кораблик в гавани! 🎉' : 'Мигайте фонариком! 🔦')}
@@ -339,14 +339,14 @@ window.RL = window.RL || {};
         ${world}${hud(S, L)}
         <div class="rounds">${Array.from({ length: g.rounds }, (_, k) => `<span class="${k < g.won ? 'melt' : k === g.won ? 'cur' : ''}">${k < g.won ? '💧' : '🧊'}</span>`).join('')}</div>
         ${say(g.between ? (g.won >= g.rounds ? 'Весь лёд растаял! 🎉' : '💧 Растаяла! Передай Робика двумя руками') : 'Тур ' + g.round + ' из ' + g.rounds + ' 🔥 Грейте меня!')}
-        ${g.between && g.won < g.rounds ? howto('img/codex/howto_pass.png') : ''}
+        ${g.between && g.won < g.rounds ? howto('img/codex/howto_pass.webp') : ''}
         <div class="power"><span>🔥</span><div class="pbar"><div id="pbar"></div></div></div>
         ${holdBtn('next', '▶')}</div>`;
       floor = 86;
     }
     else if (scr === 'sticker') {
       const n = Math.min(RL.Journal.album()[L.house] || 1, SLOTS.length);
-      const img = (L.sticker && L.sticker.img) || 'img/sticker_fire.png';
+      const img = (L.sticker && L.sticker.img) || 'img/sticker_fire.webp';
       h = `<div class="scr"><div class="bg" style="background-image:url(img/bg_sticker.jpg)"></div>
         ${SLOTS.slice(0, n - 1).map(([x, y]) => `<img class="stk placed" src="${img}" style="left:${x}%;top:${y}%" alt="">`).join('')}
         <img class="stk fly" src="${img}" style="--tx:${SLOTS[n - 1][0]}%;--ty:${SLOTS[n - 1][1]}%" alt="">
@@ -402,7 +402,7 @@ window.RL = window.RL || {};
       const cst = L.steps[S.i], why = cst.why && cst.why[S.winner];
       if (why) setTimeout(() => {
         const sy = stage.querySelector('.say'); if (!sy || E.state.screen !== 'compare') return;
-        sy.classList.add('why'); sy.innerHTML = (has(why.img) ? `<img class="whyimg" src="${why.img}" alt="">` : '<img src="img/robik_think.png" alt="">') + `<span>${why.text}</span>`;
+        sy.classList.add('why'); sy.innerHTML = (has(why.img) ? `<img class="whyimg" src="${why.img}" alt="">` : '<img src="img/robik_think.webp" alt="">') + `<span>${why.text}</span>`;
         Sfx.pop();
       }, 6500);
       setTimeout(() => {
@@ -492,8 +492,8 @@ window.RL = window.RL || {};
         }
         const par = W.actor('parents');
         if (par && par.rig) { par.rig.peek = g.awake || g.zone === 'loud' ? 0.65 : g.zone === 'mid' ? 0.25 : 0; /* сонно приоткрывают, не таращатся */ par.rig.look = Math.max(-1, Math.min(1, ((rob ? rob.x : 50) - 16) / 35)); }
-        const want = g.awake ? 'img/codex/owlet_awake.png' : g.wake > 0.45 ? 'img/codex/owlet_half.png' : 'img/owlet.png';
-        const src = has(want) ? want : 'img/owlet.png'; if (!owlet.rig && !owlet.el.src.endsWith(src)) {
+        const want = g.awake ? 'img/codex/owlet_awake.webp' : g.wake > 0.45 ? 'img/codex/owlet_half.webp' : 'img/owlet.webp';
+        const src = has(want) ? want : 'img/owlet.webp'; if (!owlet.rig && !owlet.el.src.endsWith(src)) {
           // ширина корзинки одна и та же, высота — по пропорциям картинки (у проснувшегося над головой искры)
           owlet.el.onload = () => { const e = owlet.el; e.style.height = (16.25 * e.naturalHeight / e.naturalWidth) + 'cqw'; };
           owlet.el.src = src; owlet.hop(0.35);
@@ -847,10 +847,23 @@ window.RL = window.RL || {};
   RL.Sync.subscribe(() => { if (panel.innerHTML) refreshPanel(); });
   E.subscribe((S, L) => { renderStage(S, L); renderPanel(S, L); autopilotTick(S, L); });
   setInterval(updateLive, 50);
+  // экран загрузки: сначала карта и герои, чтобы на медленном интернете не было белых пятен
+  function preload(done) {
+    const list = ['img/map_empty.jpg', 'img/map.jpg'].concat(...['asya', 'tim', 'robik'].map(n => RL.Rig && RL.Rig.srcs ? RL.Rig.srcs(n) : []));
+    const ov = document.createElement('div'); ov.className = 'loading';
+    ov.innerHTML = '<div class="lbox"><div class="lt">Городок Почему</div><div class="lbar"><i id="lfill"></i></div><div class="ln">Загружаем картинки…</div></div>';
+    stage.appendChild(ov);
+    let n = 0, fin = false;
+    const finish = () => { if (fin) return; fin = true; ov.classList.add('out'); setTimeout(() => ov.remove(), 450); done(); };
+    list.forEach(src => { const i = new Image(); i.onload = i.onerror = () => { n++; const f = $('#lfill'); if (f) f.style.width = (n / list.length * 100) + '%'; if (n >= list.length) finish(); }; i.src = src; });
+    setTimeout(finish, 20000);   // совсем плохая сеть — открываем как есть
+  }
   const q = qs;
   if (q.has('present')) app.classList.add('present');
+  preload(() => {
   if (q.get('demo') !== null) E.demo(q.get('lesson') || 'heat-1', +q.get('demo'));
   else if (q.get('lesson')) E.start(q.get('lesson'));
   else if (q.get('lab')) E.startLab(q.get('lab'), houseName(q.get('lab')));
   else E.showMap();
+  });
 })();

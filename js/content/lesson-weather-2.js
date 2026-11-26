@@ -12,7 +12,7 @@ RL.content['weather-2'] = {
   minutes: 15,
   channel: 'rh',
   unit: '%',
-  sticker: { icon: '💧', name: 'Капелька', img: 'img/sticker_drop.png' },
+  sticker: { icon: '💧', name: 'Капелька', img: 'img/sticker_drop.webp' },
   steps: [
     {
       id: 'intro', type: 'intro', title: 'Вступление: из чего сделаны облака',

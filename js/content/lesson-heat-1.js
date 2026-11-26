@@ -37,8 +37,8 @@ RL.content['heat-1'] = {
       id: 'measure', type: 'measure', title: 'Измерение: ладошка, затем вода',
       hint: 'Сначала один ребёнок держит Робика в ладонях. Потом опустите выносной зонд в стакан. Если значение долго не успокаивается — нажмите «Зафиксировать».',
       conditions: [
-        { key: 'hand',  icon: '✋', label: 'Ладошка', say: 'Возьми меня в ладошки и подержи!', short: '🤲 Держи меня в ладошках', howto: 'img/codex/howto_cup.png', wait: { minChange: 1.5, stableSec: 2.5 } },
-        { key: 'water', icon: '🥛', label: 'Вода',    say: 'А теперь опусти зонд в стакан с водой.', short: '🥛 Зонд — в воду', howto: 'img/codex/howto_probe.png', wait: { minChange: 1, stableSec: 2.5 } }
+        { key: 'hand',  icon: '✋', label: 'Ладошка', say: 'Возьми меня в ладошки и подержи!', short: '🤲 Держи меня в ладошках', howto: 'img/codex/howto_cup.webp', wait: { minChange: 1.5, stableSec: 2.5 } },
+        { key: 'water', icon: '🥛', label: 'Вода',    say: 'А теперь опусти зонд в стакан с водой.', short: '🥛 Зонд — в воду', howto: 'img/codex/howto_probe.webp', wait: { minChange: 1, stableSec: 2.5 } }
       ],
       reactions: { rising: 'Ой, как тепло!', falling: 'Ой, холодно!', stable: 'Запомнил!' }
     },
@@ -51,7 +51,7 @@ RL.content['heat-1'] = {
       winShort: { hand: '✋ теплее! Права Ася', water: '🥛 теплее! Прав Тим' },
       tieShort: '✋ = 🥛 Одинаково!',
       // «почему?» — появляется после ответа: картинка и одна фраза (педагог проговаривает вслух)
-      why: { hand: { img: 'img/codex/why_hand.png', text: 'Почему? Ладошки греет кровь изнутри' },
+      why: { hand: { img: 'img/codex/why_hand.webp', text: 'Почему? Ладошки греет кровь изнутри' },
              water: { text: 'Почему? Солнце нагрело воду в стакане' },
              tie: { text: 'Почему? Ладошки и вода нагрелись одинаково' } },
       hint: 'Если результат неожиданный — это хорошо. Спросите: «Почему так получилось?»'

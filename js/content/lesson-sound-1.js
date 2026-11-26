@@ -12,7 +12,7 @@ RL.content['sound-1'] = {
   minutes: 15,
   channel: 'sound',        // канал датчика: громкость
   unit: ' дБ',
-  sticker: { icon: '🔔', name: 'Колокольчик', img: 'img/sticker_bell.png' },
+  sticker: { icon: '🔔', name: 'Колокольчик', img: 'img/sticker_bell.webp' },
   scenes: { intro: 'img/bg_owl_room.jpg', guess: 'img/bg_tower.jpg', measure: 'img/bg_sound_lab.jpg' },
   steps: [
     {
@@ -40,10 +40,10 @@ RL.content['sound-1'] = {
       hint: 'Датчик лежит на одном месте рядом с коробкой. Сначала громкость открытого будильника, потом по очереди накрываем коробку. Если громкость скачет — нажмите «Зафиксировать».',
       average: true,           // записываем среднее за окно стабильности, а не мгновенное значение
       conditions: [
-        { key: 'open',   icon: '⏰', label: 'Без всего', baseline: true, say: 'Сначала послушаем открытый будильник!', short: '⏰ Слушаем будильник', howto: 'img/codex/howto_spot.png', wait: { minChange: 0, stableSec: 2.5 } },
-        { key: 'scarf',  icon: '🧣', label: 'Шарф',   say: 'Накройте коробку шарфом. Держите меня на одном месте!', short: '🧣 Накройте шарфом', howto: 'img/codex/howto_spot.png', wait: { minChange: 3, stableSec: 2.5 } },
-        { key: 'bubble', icon: '🫧', label: 'Плёнка', say: 'Теперь накройте пупырчатой плёнкой.', short: '🫧 Накройте плёнкой', howto: 'img/codex/howto_spot.png', wait: { minChange: 3, stableSec: 2.5 } },
-        { key: 'paper',  icon: '📰', label: 'Газета', say: 'А теперь — газетой.', short: '📰 Накройте газетой', howto: 'img/codex/howto_spot.png', wait: { minChange: 3, stableSec: 2.5 } }
+        { key: 'open',   icon: '⏰', label: 'Без всего', baseline: true, say: 'Сначала послушаем открытый будильник!', short: '⏰ Слушаем будильник', howto: 'img/codex/howto_spot.webp', wait: { minChange: 0, stableSec: 2.5 } },
+        { key: 'scarf',  icon: '🧣', label: 'Шарф',   say: 'Накройте коробку шарфом. Держите меня на одном месте!', short: '🧣 Накройте шарфом', howto: 'img/codex/howto_spot.webp', wait: { minChange: 3, stableSec: 2.5 } },
+        { key: 'bubble', icon: '🫧', label: 'Плёнка', say: 'Теперь накройте пупырчатой плёнкой.', short: '🫧 Накройте плёнкой', howto: 'img/codex/howto_spot.webp', wait: { minChange: 3, stableSec: 2.5 } },
+        { key: 'paper',  icon: '📰', label: 'Газета', say: 'А теперь — газетой.', short: '📰 Накройте газетой', howto: 'img/codex/howto_spot.webp', wait: { minChange: 3, stableSec: 2.5 } }
       ],
       levels: { loud: 65, quiet: 50 },
       reactions: { loud: 'Ой, как громко!', mid: 'Слышу, но потише…', quiet: 'Тихо-тихо…', stable: 'Запомнил!' }
@@ -59,10 +59,10 @@ RL.content['sound-1'] = {
       tie: 'Почти одинаково! Значит, оба материала глушат звук хорошо.',
       winShort: { scarf: '🧣 тише всех! Прав Тим', bubble: '🫧 тише всех! Права Ася', paper: '📰 тише всех!' },
       tieShort: 'Почти одинаково! 🤝',
-      why: { scarf: { img: 'img/codex/why_soft.png', text: 'Почему? Мягкое и толстое глотает звук' },
+      why: { scarf: { img: 'img/codex/why_soft.webp', text: 'Почему? Мягкое и толстое глотает звук' },
              bubble: { text: 'Почему? В пузырьках воздух — он глушит звук' },
              paper: { text: 'Почему? Даже бумага глушит звук' },
-             tie: { img: 'img/codex/why_soft.png', text: 'Почему? Мягкое глушит звук' } },
+             tie: { img: 'img/codex/why_soft.webp', text: 'Почему? Мягкое глушит звук' } },
       hint: 'Выведите на экран результаты всех пар. Спросите: «Почему у разных пар немного разные числа?» Честный опыт — когда меняется только одно.'
     },
     {

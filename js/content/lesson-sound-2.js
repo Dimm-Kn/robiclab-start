@@ -11,7 +11,7 @@ RL.content['sound-2'] = {
   minutes: 14,
   channel: 'sound',
   unit: 'дБ',
-  sticker: { icon: '🔔', name: 'Колокольчик', img: 'img/sticker_bell.png' },
+  sticker: { icon: '🔔', name: 'Колокольчик', img: 'img/sticker_bell.webp' },
   steps: [
     {
       id: 'intro', type: 'intro', title: 'Вступление: концерт в башне',
