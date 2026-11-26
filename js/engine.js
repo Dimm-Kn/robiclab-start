@@ -36,7 +36,7 @@ RL.Voice = (function () {
     const hit = pack()[norm(part.text)];
     if (hit) {
       const a = new Audio(hit.file); cur = a; a.volume = Math.min(1, hit.gain || 1);
-      if ((hit.who || who) === 'robik') robotize(a);
+      if ((hit.who || who) === 'robik' && !hit.fx) robotize(a);   // у новых записей эффект робота уже внутри
       a.onended = playNext; a.onerror = () => tts(part, fallback);
       a.play().catch(() => tts(part, fallback));
       return;
