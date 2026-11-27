@@ -40,11 +40,15 @@ window.RL = window.RL || {};
     const old = $('#hmenu'); if (old) old.remove();
     const done = doneLessons();
     const m = document.createElement('div'); m.className = 'hmenu'; m.id = 'hmenu';
-    m.innerHTML = `<div class="hbox"><div class="ht">${x.icon} ${x.name}</div><div class="hcards">
-      ${x.lessons.map((id, k) => { const l = RL.content[id], g = l.steps.find(s => s.type === 'guess');
-        return `<button class="hcard ${done.has(id) ? 'done' : ''}" data-start="${id}"><span class="hn">${k + 1}</span><span class="hi">${g.options.map(o => o.icon).join(' ')}</span><span class="hl">${l.title}</span>${done.has(id) ? '<span class="hd">✔</span>' : ''}</button>`; }).join('')}
-      <button class="hcard lab" data-lab="${x.lesson}"><span class="hn">🔬</span><span class="hi">📌 📈</span><span class="hl">Лаборатория</span></button>
-      </div><button class="gbtn hx" id="hclose">✕</button></div>`;
+    const stamp = l => l.sticker && l.sticker.img ? `<img src="${l.sticker.img}" alt="">` : `<span>${(l.sticker && l.sticker.icon) || '⭐'}</span>`;
+    // табличка домика: деревянная доска, внутри карточки-картинки уроков и лаборатории
+    m.innerHTML = `<div class="hbox wood"><div class="ht plank">${x.name}</div><i class="nail n1"></i><i class="nail n2"></i><i class="nail n3"></i><i class="nail n4"></i><div class="hcards">
+      ${x.lessons.map((id, k) => { const l = RL.content[id], ok = done.has(id);
+        return `<button class="hcard ${ok ? 'done' : ''}" data-start="${id}"><span class="hpic" style="background-image:url(img/thumb/${id}.webp)"><span class="hn">${k + 1}</span>${ok ? `<span class="hd">${stamp(l)}</span>` : ''}</span>
+          <span class="hl">${l.title}</span><span class="hs">${ok ? '✔ Пройдено · ещё раз' : '▶ Начать · ' + l.minutes + ' мин'}</span></button>`; }).join('')}
+      <button class="hcard lab" data-lab="${x.lesson}"><span class="hpic" style="background-image:url(img/thumb/lab-${x.id}.webp)"><span class="hn">🔬</span></span>
+        <span class="hl">Лаборатория</span><span class="hs">Мерим что хотим</span></button>
+      </div><button class="gbtn hx" id="hclose" aria-label="Закрыть">✕</button></div>`;
     stage.appendChild(m);
   }
   const fmtV = (v, L) => v === null || v === undefined ? '—' : Math.round(v) + (L && L.channel === 't' ? '°' : '');
@@ -100,9 +104,9 @@ window.RL = window.RL || {};
   SCENES['heat-2'] = Object.assign({}, SCENES['heat-1'], {
     intro: { bg: 'img/bg_heat2_room.jpg', robik: [50, 82], mood: 'wait', emit: [{ type: 'dust', x0: 4, x1: 40, y0: 10, y1: 60, rate: 4 }] } });
   SCENES['sound-2'] = Object.assign({}, SCENES['sound-1'], {
-    intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 90, h: 26 }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
+    intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 90, h: 26, anim: 'bouncy', enter: 'right' }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
   SCENES['light-2'] = Object.assign({}, SCENES['light-1'], {
-    intro: { bg: 'img/bg_light2_reading.jpg', robik: [44, 88], mood: 'wait', guests: [{ who: 'keeper', img: 'img/keeper.webp', x: 74, y: 94, h: 40 }], emit: [{ type: 'dust', x0: 8, x1: 40, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
+    intro: { bg: 'img/bg_light2_reading.jpg', robik: [44, 88], mood: 'wait', guests: [{ who: 'keeper', img: 'img/keeper.webp', x: 74, y: 94, h: 40, anim: 'gentle', enter: 'right' }], emit: [{ type: 'dust', x0: 8, x1: 40, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
     measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], meter: true, condsRight: true, emit: [{ type: 'dust', x0: 38, x1: 58, y0: 25, y1: 55, rate: 3, color: '255,245,200' }] } });
   SCENES['weather-2'] = Object.assign({}, SCENES['weather-1'], {
     intro: { bg: 'img/bg_weather2_kitchen.jpg', robik: [50, 88], mood: 'warm', emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,250,220' }] } });
@@ -217,7 +221,7 @@ window.RL = window.RL || {};
     else if (scr === 'intro') {
       h = `<div class="scr ${sc.night ? 'night' : ''}"><div class="bg" style="background-image:url(${owlBg(sc.bg)})"></div>
         ${sc.owls ? owls() : ''}
-        ${(sc.guests || []).map(g => actor(g.who, g.img, g.x, g.y, g.h, 'stand', 'data-depth="0.4"')).join('')}
+        ${(sc.guests || []).map(g => actor(g.who, g.img, g.x, g.y, g.h, 'stand', `data-depth="0.4" data-anim="${g.anim || ''}" data-enter="${g.enter || ''}"`)).join('')}
         ${sc.mood === 'cold' ? '<div class="floe-ice"></div>' : ''}
         ${actor('robik', ROBIK[sc.mood], sc.robik[0], sc.robik[1], 22, 'hover')}
         ${world}${hud(S, L)}${say(short(st), sc.mood === 'cold' ? 'cold' : '')}${holdBtn('next', '▶')}</div>`;
@@ -351,14 +355,14 @@ window.RL = window.RL || {};
       h = `<div class="scr"><div class="bg" style="background-image:url(img/bg_sticker.jpg)"></div>
         ${SLOTS.slice(0, n - 1).map(([x, y]) => `<img class="stk placed" src="${img}" style="left:${x}%;top:${y}%" alt="">`).join('')}
         <img class="stk fly" src="${img}" style="--tx:${SLOTS[n - 1][0]}%;--ty:${SLOTS[n - 1][1]}%" alt="">
-        <div class="note"><div class="nt">Мы узнали!</div><div class="nb">${st.say.split('!')[0]}!</div>
+        <div class="note"><div class="nt">Мы узнали!</div><div class="nb">${st.say.split('!')[0].replace(/^Мы узнали:\s*/, '').replace(/^./, c => c.toUpperCase())}!</div>
           <div class="nc">${HOUSES.find(x => x.id === L.house).name}: наклейка <b>${n}</b> из 4</div></div>
         ${actor('robik', ROBIK.happy, 80, 92, 16, 'hover')}
         ${world}${hud(S, L)}
         ${holdBtn('tomap', '🗺️', 'home2')}</div>`;
       emit = [{ type: 'dust', x0: 10, x1: 90, y0: 10, y1: 90, rate: 4, color: '255,230,150' }];
     }
-    if (S && S.paused) h += `<div class="pause"><div class="pbox">⏸<span>Пауза</span></div></div>`;
+    if (S && S.paused) h += `<div class="pause"><div class="pbox wood"><i class="rope r1"></i><i class="rope r2"></i><img src="img/robik_sneak.webp" alt=""><div><b>Пауза</b><small>Ждём педагога…</small></div></div></div>`;
     h += `<div class="subs" id="subs">${RL.Voice.last || ''}</div>`;
     stage.innerHTML = h;
     stage.classList.toggle('nosubs', !subsOn);
@@ -866,7 +870,7 @@ window.RL = window.RL || {};
   function preload(done) {
     const list = ['img/map_empty.jpg'].concat(...['asya', 'tim', 'robik'].map(n => RL.Rig && RL.Rig.srcs ? RL.Rig.srcs(n) : []));
     const ov = document.createElement('div'); ov.className = 'loading';
-    ov.innerHTML = '<div class="lbox"><div class="lt">Городок Почему</div><div class="lbar"><i id="lfill"></i></div><div class="ln">Загружаем картинки…</div></div>';
+    ov.innerHTML = '<div class="lbox wood"><div class="ht plank">Городок Почему</div><img class="lrob" src="img/robik_happy.webp" alt=""><div class="lbar"><i id="lfill"></i></div><div class="ln">Робик открывает ворота…</div></div>';
     stage.appendChild(ov);
     let n = 0, fin = false;
     const finish = () => { if (fin) return; fin = true; ov.classList.add('out'); setTimeout(() => ov.remove(), 450); done(); };

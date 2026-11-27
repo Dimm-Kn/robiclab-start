@@ -45,6 +45,10 @@ RL.World = (function () {
     // y — необязательно: по карте герои ходят и вглубь (вверх-вниз), не только вбок
     a.walkTo = (x, speed = 16, y) => { a.wx = x; a.wspeed = speed; a.wy = y; };
     a.walkAmt = 0; a.walkPh = 0;
+    // характер гостя (data-anim): bouncy — пританцовывает и бьёт в барабан, gentle — переминается, кивает, фонарь светится
+    a.anim = d.anim || ''; a.beatT = 0; a.extraRot = 0; a.extraSq = 0;
+    // выход на сцену (data-enter="left|right"): идёт от края к своему месту
+    if (d.enter && !prevState) { a.x = a.home.x + (d.enter === 'right' ? 34 : -34); a.walkTo(a.home.x, +(d.enterSpeed || 20)); }
     return a;
   }
 
@@ -84,6 +88,33 @@ RL.World = (function () {
     const targetLean = Math.max(-14, Math.min(14, a.vx * 0.9));
     a.lean += (targetLean - a.lean) * Math.min(1, dt * 8);
     a.talk += ((speaker === a.name ? 1 : 0) - a.talk) * Math.min(1, dt * 10);
+    if (a.anim) animate(a, dt);
+  }
+
+  // размеры актёра в % сцены — чтобы частицы вылетали из нужной точки картинки
+  const sizeOf = a => ({ w: a.el.offsetWidth / W * 100, h: a.el.offsetHeight / H * 100 });
+  function animate(a, dt) {
+    const talking = a.talk > 0.5, walking = a.wx !== undefined;
+    a.beatT += dt;
+    if (a.anim === 'bouncy') {
+      // пританцовывает: качается в такт, на каждый удар — подпрыгнуть и бухнуть в барабан
+      const period = talking ? 0.42 : walking ? 0.5 : 1.25;
+      a.extraRot = Math.sin(t * Math.PI * 2 / (period * 2)) * (talking ? 6 : 3.5);
+      if (a.beatT > period) {
+        a.beatT = 0; a.hop(talking ? 0.5 : walking ? 0.45 : 0.22);
+        const z = sizeOf(a), dx = a.x - z.w * 0.06, dy = a.y + a.jump - z.h * 0.3;   // барабан — на животе
+        P({ kind: 'ring', x: dx, y: dy, life: 0.7, size: 0.6, grow: talking ? 7 : 4.5, color: '255,210,90', alpha: talking ? 0.8 : 0.5, width: 0.3 });
+        if (talking || Math.random() < 0.45) P({ kind: 'text', text: Math.random() < 0.5 ? '♪' : '♫', x: dx + rnd(-z.w * 0.4, z.w * 0.4), y: a.y - z.h * 0.75, vx: rnd(-3, 3), vy: rnd(-7, -4), life: 1.8, size: rnd(1.8, 2.6), color: '255,225,120', sway: 1.5, grow: 0.3 });
+      }
+    } else if (a.anim === 'gentle') {
+      // переминается с ноги на ногу, при разговоре кивает; фонарь в руке тёплый и мерцает
+      a.extraRot = Math.sin(t * 1.15 + a.phase) * 1.8 + (talking ? Math.sin(t * 5.5) * 2.2 : 0);
+      a.extraSq = talking ? Math.abs(Math.sin(t * 5.5)) * 0.025 : 0;
+      if (a.beatT > (talking ? 0.12 : 0.3)) {
+        a.beatT = 0; const z = sizeOf(a);
+        P({ kind: 'glow', x: a.x + z.w * 0.55 + rnd(-0.5, 0.5), y: a.y + a.jump - z.h * 0.53 + rnd(-0.7, 0.7), vx: rnd(-0.6, 0.6), vy: rnd(-2.5, -0.8), life: rnd(1, 1.8), size: rnd(0.35, 0.7), color: '255,200,110', sway: 0.5 });
+      }
+    }
   }
 
   function drawActor(a, dt) {
@@ -93,9 +124,11 @@ RL.World = (function () {
     const hoverBob = a.mode === 'hover' ? Math.sin(t * 1.7 + a.phase) * 1.1 : 0;
     const shake = a.shiver ? (Math.random() - 0.5) * a.shiver : 0;
     const ps = a.persp ? a.persp(a.y) : 1;   // перспектива: дальше — меньше
-    const sy = (1 + br + a.sq * -1 + talkBob) * ps, sx = (1 - br * 0.5 + a.sq * 0.7) * ps;
+    const sy = (1 + br + a.sq * -1 + talkBob + a.extraSq) * ps, sx = (1 - br * 0.5 + a.sq * 0.7) * ps;
     if (a.persp) a.el.style.zIndex = 3 + Math.round(a.y / 10);
-    const rot = a.lean + (a.rig ? 0 : a.talk * Math.sin(t * 7 + a.phase) * 3 + Math.sin(t * 0.9 + a.phase) * 0.8);
+    const rot = a.lean + a.extraRot + (a.rig ? 0 : a.talk * Math.sin(t * 7 + a.phase) * 3 + Math.sin(t * 0.9 + a.phase) * 0.8);
+    // при ходьбе картинка-гость «шагает»: короткие подскоки в такт шагам
+    if (!a.rig && a.walkAmt > 0.05) a.el.style.marginTop = (-Math.abs(Math.sin(a.walkPh)) * 0.9 * a.walkAmt) + 'cqw'; else if (a.el.style.marginTop) a.el.style.marginTop = '';
     const px = -ptr.sx * a.depth * 1.4, py = -ptr.sy * a.depth * 0.8;           // параллакс
     a.el.style.left = (a.x + shake) + '%';
     a.el.style.top = (a.y + a.jump + hoverBob) + '%';
