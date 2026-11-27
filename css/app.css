@@ -522,3 +522,13 @@ table.j.full td { vertical-align:top; }
 table.j.full th { background:#f3dcb0; color:#5a3212; font-family:var(--game-font); font-weight:400; position:sticky; top:0; }
 table.j.full tr:nth-child(2n) td { background:rgba(243,220,176,.35); }
 @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+
+/* логотип «робиклаб»: на белой плашке, чтобы синий знак читался на любом фоне */
+.brand { position:absolute; right:1.4cqw; bottom:1.4cqw; z-index:6; background:rgba(255,255,255,.92); border-radius:2cqw; padding:.6cqw 1.2cqw; box-shadow:0 .4cqw 0 rgba(0,0,0,.15), 0 .6cqw 1.2cqw rgba(0,0,0,.2); pointer-events:none; }
+.brand img { display:block; height:3cqw; }
+.loading .lbrand { margin-bottom:5.5cqw; background:#fff; border-radius:3cqw; padding:1cqw 2.4cqw; box-shadow:0 .5cqw 0 rgba(120,60,10,.35), 0 1cqw 2cqw rgba(0,0,0,.2); }
+.loading .lbrand img { display:block; height:5cqw; }
+.loading { flex-direction:column; }
+.ph .plogo { height:20px; background:#fff; border-radius:8px; padding:3px 6px; flex:none; }
+.ph b { white-space:nowrap; }
+.ph .grp { font-size:11px; opacity:.8; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }

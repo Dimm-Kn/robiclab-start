@@ -99,7 +99,8 @@ RL.World = (function () {
     if (a.anim === 'bouncy') {
       // пританцовывает: качается в такт, на каждый удар — подпрыгнуть и бухнуть в барабан
       const period = talking ? 0.42 : walking ? 0.5 : 1.25;
-      a.extraRot = Math.sin(t * Math.PI * 2 / (period * 2)) * (talking ? 6 : 3.5);
+      a.beatPh = (a.beatPh || 0) + dt * Math.PI / period;   // фаза ударов: руки бьют по очереди (rig.js)
+      a.extraRot = Math.sin(t * Math.PI * 2 / (period * 2)) * (talking ? 6 : 3.5) * (a.rig ? 0.4 : 1);
       if (a.beatT > period) {
         a.beatT = 0; a.hop(talking ? 0.5 : walking ? 0.45 : 0.22);
         const z = sizeOf(a), dx = a.x - z.w * 0.06, dy = a.y + a.jump - z.h * 0.3;   // барабан — на животе
@@ -108,11 +109,11 @@ RL.World = (function () {
       }
     } else if (a.anim === 'gentle') {
       // переминается с ноги на ногу, при разговоре кивает; фонарь в руке тёплый и мерцает
-      a.extraRot = Math.sin(t * 1.15 + a.phase) * 1.8 + (talking ? Math.sin(t * 5.5) * 2.2 : 0);
-      a.extraSq = talking ? Math.abs(Math.sin(t * 5.5)) * 0.025 : 0;
+      a.extraRot = (Math.sin(t * 1.15 + a.phase) * 1.8 + (talking ? Math.sin(t * 5.5) * 2.2 : 0)) * (a.rig ? 0.35 : 1);   // у скелета кивает голова, телом — едва
+      a.extraSq = talking && !a.rig ? Math.abs(Math.sin(t * 5.5)) * 0.025 : 0;
       if (a.beatT > (talking ? 0.12 : 0.3)) {
         a.beatT = 0; const z = sizeOf(a);
-        P({ kind: 'glow', x: a.x + z.w * 0.55 + rnd(-0.5, 0.5), y: a.y + a.jump - z.h * 0.53 + rnd(-0.7, 0.7), vx: rnd(-0.6, 0.6), vy: rnd(-2.5, -0.8), life: rnd(1, 1.8), size: rnd(0.35, 0.7), color: '255,200,110', sway: 0.5 });
+        P({ kind: 'glow', x: a.x + z.w * (a.rig ? 0.43 : 0.55) + rnd(-0.5, 0.5), y: a.y + a.jump - z.h * (a.rig ? 0.33 : 0.53) + rnd(-0.7, 0.7), vx: rnd(-0.6, 0.6), vy: rnd(-2.5, -0.8), life: rnd(1, 1.8), size: rnd(0.35, 0.7), color: '255,200,110', sway: 0.5 });
       }
     }
   }

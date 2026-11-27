@@ -87,9 +87,16 @@ RL.Rig = (function () {
       if (a.talk > 0.05) {
         p.head += a.talk * 4 * Math.sin(t * 6.3 + ph);
         const side = S.robot ? 'R' : (S.talkHand || 'R');
-        p[side].up += a.talk * (22 + 10 * Math.sin(t * 2.7));
-        p[side].lo += a.talk * (35 + 18 * Math.sin(t * 4.1));
+        const ta = S.talkAmp || 1;
+        p[side].up += a.talk * ta * (22 + 10 * Math.sin(t * 2.7));
+        p[side].lo += a.talk * ta * (35 + 18 * Math.sin(t * 4.1));
       }
+      // характер гостя (world.js, data-anim): bouncy — руки по очереди бьют в барабан, gentle — рука с фонарём покачивается
+      if (a.anim === 'bouncy' && a.beatPh !== undefined) {
+        const sn = Math.sin(a.beatPh), amp = a.talk > 0.5 ? 38 : 26;
+        p.L.up -= amp * Math.max(0, sn); p.R.up -= amp * Math.max(0, -sn); p.head += 3 * Math.sin(a.beatPh * 2);
+      }
+      if (a.anim === 'gentle') { p.R.lo += 7 * Math.sin(t * 1.4 + ph); p.R.up += 3 * Math.sin(t * 1.4 + ph + 0.6); }
       // жест поверх всего: плавно входит и выходит
       if (r.gest) {
         const w = ease(r.gT / 0.3) * ease((r.gDur - r.gT) / 0.35);

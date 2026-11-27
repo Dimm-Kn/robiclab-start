@@ -104,7 +104,7 @@ window.RL = window.RL || {};
   SCENES['heat-2'] = Object.assign({}, SCENES['heat-1'], {
     intro: { bg: 'img/bg_heat2_room.jpg', robik: [50, 82], mood: 'wait', emit: [{ type: 'dust', x0: 4, x1: 40, y0: 10, y1: 60, rate: 4 }] } });
   SCENES['sound-2'] = Object.assign({}, SCENES['sound-1'], {
-    intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 90, h: 26, anim: 'bouncy', enter: 'right' }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
+    intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 91, h: 30, anim: 'bouncy', enter: 'right' }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
   SCENES['light-2'] = Object.assign({}, SCENES['light-1'], {
     intro: { bg: 'img/bg_light2_reading.jpg', robik: [44, 88], mood: 'wait', guests: [{ who: 'keeper', img: 'img/keeper.webp', x: 74, y: 94, h: 40, anim: 'gentle', enter: 'right' }], emit: [{ type: 'dust', x0: 8, x1: 40, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
     measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], meter: true, condsRight: true, emit: [{ type: 'dust', x0: 38, x1: 58, y0: 25, y1: 55, rate: 3, color: '255,245,200' }] } });
@@ -159,7 +159,7 @@ window.RL = window.RL || {};
   // ---------- кусочки разметки ----------
   // настроение Робика по его прежней картинке (для скелетного Робика картинка не нужна)
   const MOOD_OF = { 'img/robik_cold.webp': 'cold', 'img/robik_think.webp': 'wait', 'img/robik_warm.webp': 'warm', 'img/robik_happy.webp': 'happy', 'img/robik_ears.webp': 'loud', 'img/robik_sneak.webp': 'shh' };
-  const RIG_H = { robik: 1.04, asya: 1.02, tim: 1.02 };   // поправка высоты: у рига другие поля, чем у картинки
+  const RIG_H = { robik: 1.04, asya: 1.02, tim: 1.02, keeper: 1.0, shum: 1.0 };   // поправка высоты: у рига другие поля, чем у картинки
   function look(a, src, mood) { if (!a) return; if (a.rig) a.rig.mood = mood || MOOD_OF[src] || 'neutral'; else if (!a.el.src.endsWith(src.slice(3))) a.el.src = src; }
   const actor = (name, src, x, y, h, mode = 'stand', extra = '') => (RL.Rig && RL.Rig.has(name))
     ? `<canvas class="actor rig a-${name}" data-actor="${name}" data-rig="${name}" data-mood="${MOOD_OF[src] || 'neutral'}" data-mode="${mode}" data-x="${x}" data-y="${y}" style="height:${h * RIG_H[name]}cqw" ${extra}></canvas>`
@@ -215,7 +215,7 @@ window.RL = window.RL || {};
         <div class="title-sign">Городок Почему</div>
         <div class="hud"><button class="gbtn" id="repeat">🔊</button><span class="spacer"></span>
           <div class="pillbox">👦👧 «Солнышко»</div><div class="starbox"><span class="st">📒</span><b>${total}</b></div></div>
-        <div class="say map-say"><img src="img/robik_happy.webp" alt=""><span>Куда пойдём сегодня?</span></div></div>`;
+        <div class="say map-say"><img src="img/robik_happy.webp" alt=""><span>Куда пойдём сегодня?</span></div><div class="brand"><img src="img/logo.svg" alt="робиклаб"></div></div>`;
       emit = [{ type: 'dust', x0: 36, x1: 64, y0: 25, y1: 60, rate: 4, color: '255,250,210' }];
     }
     else if (scr === 'intro') {
@@ -609,7 +609,7 @@ window.RL = window.RL || {};
       j.length, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, Snr.calPoints, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
     if (key === panelKey) return; panelKey = key;
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
-    let h = `<div class="ph"><b>Пульт педагога</b><span class="grp">«Солнышко» · 18 детей</span><button id="present" title="Клавиша P">Скрыть</button></div>`;
+    let h = `<div class="ph"><img class="plogo" src="img/logo.svg" alt="робиклаб"><b>Пульт педагога</b><span class="grp">«Солнышко» · 18 детей</span><button id="present" title="Клавиша P">Скрыть</button></div>`;
     h += `<div class="sec"><h4>Экран детей</h4><div class="row">
       <button class="btn ${board ? '' : 'on'}" id="m-group" title="Телевизор или проектор: дети экран не трогают">📺 Экран группы</button>
       <button class="btn ${board ? 'on' : ''}" id="m-board" title="Интерактивная доска: карточки нажимаются, «Дальше» — долгим нажатием">👆 Доска</button></div>
@@ -870,7 +870,7 @@ window.RL = window.RL || {};
   function preload(done) {
     const list = ['img/map_empty.jpg'].concat(...['asya', 'tim', 'robik'].map(n => RL.Rig && RL.Rig.srcs ? RL.Rig.srcs(n) : []));
     const ov = document.createElement('div'); ov.className = 'loading';
-    ov.innerHTML = '<div class="lbox wood"><div class="ht plank">Городок Почему</div><img class="lrob" src="img/robik_happy.webp" alt=""><div class="lbar"><i id="lfill"></i></div><div class="ln">Робик открывает ворота…</div></div>';
+    ov.innerHTML = '<div class="lbrand"><img src="img/logo.svg" alt="робиклаб"></div><div class="lbox wood"><div class="ht plank">Городок Почему</div><img class="lrob" src="img/robik_happy.webp" alt=""><div class="lbar"><i id="lfill"></i></div><div class="ln">Робик открывает ворота…</div></div>';
     stage.appendChild(ov);
     let n = 0, fin = false;
     const finish = () => { if (fin) return; fin = true; ov.classList.add('out'); setTimeout(() => ov.remove(), 450); done(); };
