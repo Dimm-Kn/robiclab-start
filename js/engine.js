@@ -38,7 +38,14 @@ RL.Voice = (function () {
       const a = new Audio(hit.file); cur = a; a.volume = Math.min(1, hit.gain || 1);
       if ((hit.who || who) === 'robik' && !hit.fx) robotize(a);   // у новых записей эффект робота уже внутри
       a.onended = playNext; a.onerror = () => tts(part, fallback);
-      a.play().catch(() => tts(part, fallback));
+      a.play().catch(e => {
+        // браузер не даёт звучать до первого касания страницы: ждём касания и играем ту же запись,
+        // а не переходим на системный голос (он звучит как чужой женский голос)
+        if (e && e.name === 'NotAllowedError') {
+          const go = () => { ['pointerdown', 'keydown', 'touchstart'].forEach(t => removeEventListener(t, go, true)); if (cur === a && !held) a.play().catch(() => {}); };
+          ['pointerdown', 'keydown', 'touchstart'].forEach(t => addEventListener(t, go, true));
+        } else if (cur === a) tts(part, fallback);
+      });
       return;
     }
     tts(part, fallback);
