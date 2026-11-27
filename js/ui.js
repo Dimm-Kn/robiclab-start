@@ -366,7 +366,7 @@ window.RL = window.RL || {};
     W.attach(stage, { emitters: emit, floor, keep });
     RL.Amb.scene(L && L.lab ? ambience(RL.content[L.base], 'measure') : ambience(L, scr));
     // музыка: тема карты, тема домика на занятии, своя — в лаборатории, весёлая — в игре, торжественная — на наклейке
-    RL.Music.play(!L ? 'map' : L.lab ? 'lab' : scr === 'game' ? 'game_' + L.house : scr === 'sticker' ? 'sticker' : scr === 'compare' ? 'discovery' : 'house_' + L.house);
+    RL.Music.play(!L ? 'map' : L.lab ? 'lab' : scr === 'game' ? 'game_' + L.house : scr === 'sticker' ? 'sticker' : scr === 'compare' ? 'discovery' : 'house_' + L.house + (/-2$/.test(L.id) ? '2' : ''));   // у вторых уроков своя тема (house_heat2 …)
     lastMood = ''; updateLive(true);
     requestAnimationFrame(() => stage.querySelectorAll('.col').forEach(b => b.style.height = b.dataset.h));
     effects(S, L, scr);
