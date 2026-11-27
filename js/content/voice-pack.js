@@ -263,7 +263,7 @@ RL.voicePack = {
    "who": "robik",
    "id": "s_rec_scarf",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.66
   },
   "запомнил пленка": {
    "file": "audio/vo/s_rec_bubble.mp3",
@@ -442,7 +442,7 @@ RL.voicePack = {
    "who": "robik",
    "id": "l_rec_paper",
    "fx": "robotC",
-   "gain": 0.7
+   "gain": 0.82
   },
   "запомнил картон": {
    "file": "audio/vo/l_rec_card.mp3",
@@ -823,12 +823,6 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "маяк света смотритель маяка хочет почитать книжку но не знает где в комнате светлее": {
-   "file": "audio/vo/light2_narr.mp3",
-   "who": "narrator",
-   "id": "light2_narr",
-   "gain": 0.71
-  },
   "давайте найдем самое светлое место я умею мерить свет": {
    "file": "audio/vo/light2_intro.mp3",
    "who": "robik",
@@ -1053,7 +1047,7 @@ RL.voicePack = {
    "who": "robik",
    "id": "sound2_m_stomp",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.67
   },
   "громче всех хлопок права ася хлопок будет барабанщиком": {
    "file": "audio/vo/sound2_win_clap.mp3",
@@ -1121,7 +1115,7 @@ RL.voicePack = {
    "file": "audio/vo/weather2_opt_warmcup.mp3",
    "who": "asya",
    "id": "weather2_opt_warmcup",
-   "gain": 0.72
+   "gain": 0.69
   },
   "от цветка мы его только что полили": {
    "file": "audio/vo/weather2_opt_plant.mp3",
@@ -1219,6 +1213,30 @@ RL.voicePack = {
    "id": "weather2_sticker",
    "fx": "robotC",
    "gain": 0.71
+  },
+  "маяк света смотрительница маяка хочет почитать книжку но не знает где в комнате светлее": {
+   "file": "audio/vo/light2_narr.mp3",
+   "who": "narrator",
+   "id": "light2_narr",
+   "gain": 0.62
+  },
+  "здравствуйте ребята помогите мне найти самое светлое место чтобы читать книжку": {
+   "file": "audio/vo/light2_guest0.mp3",
+   "who": "keeper",
+   "id": "light2_guest0",
+   "gain": 0.84
+  },
+  "р р р я шумозавр обожаю громкие звуки можно я тоже послушаю": {
+   "file": "audio/vo/sound2_guest0.mp3",
+   "who": "shum",
+   "id": "sound2_guest0",
+   "gain": 0.94
+  },
+  "уху у кто это шумит я так сладко спал": {
+   "file": "audio/vo/g_owlet_wake.mp3",
+   "who": "owlet",
+   "id": "g_owlet_wake",
+   "gain": 0.54
   }
  }
 };

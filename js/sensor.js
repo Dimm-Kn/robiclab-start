@@ -105,6 +105,19 @@ RL.Sensor = (function () {
   }
   function disconnectMic() { if (micStream) micStream.getTracks().forEach(t => t.stop()); micStream = null; analyser = null; source = 'sim'; emitDevice(); }
 
+  // ---------- калибровка настоящего датчика (USB и микрофон) ----------
+  // По одной-двум точкам «показал датчик → показал эталон» на канал: одна точка — сдвиг, две — сдвиг и масштаб.
+  // Хранится в этом браузере; на симулятор не действует.
+  let cal = {}; try { cal = JSON.parse(localStorage.getItem('rl.cal') || '{}') || {}; } catch (e) {}
+  const saveCal = () => { try { localStorage.setItem('rl.cal', JSON.stringify(cal)); } catch (e) {} };
+  function calibrate(ch, r) {
+    const p = cal[ch]; if (!p || !p.length) return r;
+    if (p.length === 1) return r + (p[0][1] - p[0][0]);
+    const [[x1, y1], [x2, y2]] = p; if (Math.abs(x2 - x1) < 1e-6) return r + (y1 - x1);
+    return y1 + (r - x1) * (y2 - y1) / (x2 - x1);
+  }
+  let rawDev = null;   // сглаженное показание прибора до калибровки
+
   // ---------- обработка ----------
   let last = performance.now();
   setInterval(() => {
@@ -112,7 +125,8 @@ RL.Sensor = (function () {
     let r;
     if (source === 'serial' && serialValue[channel] !== null) r = serialValue[channel];
     else if (source === 'mic' && channel === 'sound' && analyser) r = micLevel();
-    else r = simTick(dt);
+    if (r !== undefined) { rawDev = rawDev === null ? r : rawDev + (r - rawDev) * CH[channel].smooth; r = calibrate(channel, r); }
+    else { rawDev = null; r = simTick(dt); }
     value += (r - value) * CH[channel].smooth;
     hist.push({ t: now / 1000, v: value });
     while (hist.length && hist[0].t < now / 1000 - 15) hist.shift();
@@ -143,7 +157,7 @@ RL.Sensor = (function () {
     unit: () => CH[channel].unit,
     setChannel(ch) {
       if (!CH[ch] || ch === channel) return;
-      channel = ch; hist = []; value = raw = CH[ch].start;
+      channel = ch; hist = []; value = raw = CH[ch].start; rawDev = null;
       if (source === 'mic' && ch !== 'sound') disconnectMic();
     },
     sim, isStable, slope, mean, history: () => hist,
@@ -151,6 +165,18 @@ RL.Sensor = (function () {
     sound(state) { sim.sound.state = state; },
     light(state) { sim.light.state = state; },
     rh(state) { sim.rh.state = state; },
-    connectSerial, connectMic, disconnectMic, setDevice
+    connectSerial, connectMic, disconnectMic, setDevice,
+    // калибровка: точка = текущее показание прибора + значение эталона; третья точка заменяет ближайшую
+    get raw() { return rawDev; },
+    get calPoints() { return (cal[channel] || []).slice(); },
+    calPoint(ref) {
+      if (rawDev === null || !isFinite(ref)) return false;
+      const p = cal[channel] = (cal[channel] || []).slice(), pt = [+rawDev.toFixed(2), +ref];
+      if (p.length < 2) p.push(pt); else { const k = Math.abs(p[0][0] - pt[0]) < Math.abs(p[1][0] - pt[0]) ? 0 : 1; p[k] = pt; }
+      p.sort((a, b) => a[0] - b[0]); saveCal(); return true;
+    },
+    calReset() { delete cal[channel]; saveCal(); },
+    // для проверки без прибора: строка как будто пришла по USB
+    debugSerial(line) { source = 'serial'; parseLine(line); emitDevice(); }
   };
 })();

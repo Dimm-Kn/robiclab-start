@@ -167,7 +167,7 @@ RL.Engine = (function () {
     const st = step();
     S.screen = st.type; S.reaction = null;
     if (st.type === 'lab') { S.condStartedAt = performance.now(); RL.Sensor.setDevice({ eyes: 'wait' }); }
-    if (st.type === 'intro') { RL.Sensor.setDevice({ eyes: (st.device && st.device.eyes) || 'blue' }); RL.Voice.sayParts([{ text: st.narration, who: 'narrator' }, { text: st.say, who: 'robik' }]); }
+    if (st.type === 'intro') { RL.Sensor.setDevice({ eyes: (st.device && st.device.eyes) || 'blue' }); RL.Voice.sayParts([{ text: st.narration, who: 'narrator' }].concat(st.lines || [], [{ text: st.say, who: 'robik' }])); }   // lines — реплики гостей сцены
     if (st.type === 'guess') { st.options.forEach(o => { if (!(o.key in S.votes)) S.votes[o.key] = 0; }); RL.Voice.sayParts([{ text: st.say, who: 'robik' }].concat(st.options.map(o => ({ text: o.say, who: o.who || 'robik' })))); }
     if (st.type === 'measure') { S.cond = 0; S.results = {}; startCondition(); }
     if (st.type === 'compare') {
@@ -301,7 +301,7 @@ RL.Engine = (function () {
       RL.Sensor.setDevice({ eyes: g.zone === 'loud' ? 'loud' : 'wait' });
       if (g.wake >= 1) {
         g.awake = true; g.wakes++; RL.Sensor.setDevice({ eyes: 'loud', vibrate: 1 });
-        RL.Voice.say('Ой! Совёнок проснулся… Баю-бай, малыш. Давайте ещё тише!');
+        RL.Voice.sayParts([{ text: 'Уху-у… Кто это шумит? Я так сладко спал…', who: 'owlet' }, { text: 'Ой! Совёнок проснулся… Баю-бай, малыш. Давайте ещё тише!', who: 'robik' }]);
         later(3500, () => { g.awake = false; g.wake = 0; emit(); });
       }
       if (g.pos >= 1) {

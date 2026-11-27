@@ -98,14 +98,14 @@ window.RL = window.RL || {};
   };
   // вторые уроки: те же места домика, своё вступление
   SCENES['heat-2'] = Object.assign({}, SCENES['heat-1'], {
-    intro: { bg: 'img/bg_measure.jpg', robik: [50, 80], mood: 'wait', emit: [{ type: 'dust', x0: 60, x1: 98, y0: 5, y1: 60, rate: 4 }] } });
+    intro: { bg: 'img/bg_heat2_room.jpg', robik: [50, 82], mood: 'wait', emit: [{ type: 'dust', x0: 4, x1: 40, y0: 10, y1: 60, rate: 4 }] } });
   SCENES['sound-2'] = Object.assign({}, SCENES['sound-1'], {
-    intro: { bg: 'img/bg_tower.jpg', robik: [50, 88], mood: 'wait', emit: [{ type: 'dust', x0: 14, x1: 86, y0: 20, y1: 60, rate: 3 }] } });
+    intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 90, h: 26 }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
   SCENES['light-2'] = Object.assign({}, SCENES['light-1'], {
-    intro: { bg: 'img/bg_lighthouse_room.jpg', robik: [50, 90], mood: 'wait', emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
+    intro: { bg: 'img/bg_light2_reading.jpg', robik: [44, 88], mood: 'wait', guests: [{ who: 'keeper', img: 'img/keeper.webp', x: 74, y: 94, h: 40 }], emit: [{ type: 'dust', x0: 8, x1: 40, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
     measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], meter: true, condsRight: true, emit: [{ type: 'dust', x0: 38, x1: 58, y0: 25, y1: 55, rate: 3, color: '255,245,200' }] } });
   SCENES['weather-2'] = Object.assign({}, SCENES['weather-1'], {
-    intro: { bg: 'img/bg_meteo_room.jpg', robik: [50, 88], mood: 'warm', emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,250,220' }] } });
+    intro: { bg: 'img/bg_weather2_kitchen.jpg', robik: [50, 88], mood: 'warm', emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,250,220' }] } });
   // ячейки альбома на фоне bg_sticker (центр круга, % сцены)
   const SLOTS = [[19.9, 27.2], [30.5, 27.2], [41.1, 27.2], [19.9, 46.4], [30.5, 46.4], [41.1, 46.4], [19.9, 65.6], [30.5, 65.6], [41.1, 65.6]];
   const moodOf = eyes => ({ blue: 'cold', warm: 'warm', happy: 'happy', wait: 'wait', loud: 'loud', bright: 'bright' }[eyes] || 'neutral');
@@ -217,6 +217,7 @@ window.RL = window.RL || {};
     else if (scr === 'intro') {
       h = `<div class="scr ${sc.night ? 'night' : ''}"><div class="bg" style="background-image:url(${owlBg(sc.bg)})"></div>
         ${sc.owls ? owls() : ''}
+        ${(sc.guests || []).map(g => actor(g.who, g.img, g.x, g.y, g.h, 'stand', 'data-depth="0.4"')).join('')}
         ${sc.mood === 'cold' ? '<div class="floe-ice"></div>' : ''}
         ${actor('robik', ROBIK[sc.mood], sc.robik[0], sc.robik[1], 22, 'hover')}
         ${world}${hud(S, L)}${say(short(st), sc.mood === 'cold' ? 'cold' : '')}${holdBtn('next', '▶')}</div>`;
@@ -601,7 +602,7 @@ window.RL = window.RL || {};
   function renderPanel(S, L) {
     const j = RL.Journal.list();
     const key = JSON.stringify([S && S.screen, L && L.id, S && S.i, S && S.cond, S && S.results, S && S.votes, S && S.paused,
-      j.length, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
+      j.length, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, Snr.calPoints, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
     if (key === panelKey) return; panelKey = key;
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
     let h = `<div class="ph"><b>Пульт педагога</b><span class="grp">«Солнышко» · 18 детей</span><button id="present" title="Клавиша P">Скрыть</button></div>`;
@@ -678,6 +679,17 @@ window.RL = window.RL || {};
         `<label class="chk"><input type="checkbox" id="autopilot" ${autopilot ? 'checked' : ''}> Автопилот: симулятор сам делает то, что просит экран</label>` : ''}
       <div class="row"><button class="btn" id="serial">🔌 Датчик по USB</button>${snd ? `<button class="btn ${Snr.source === 'mic' ? 'on' : ''}" id="mic">🎤 Микрофон</button>` : ''}</div>
       ${snd ? '<p class="muted">Микрофон заменяет датчик звука для демонстрации. Звук не записывается, берётся только уровень громкости.</p>' : ''}</div>`;
+    if (Snr.source !== 'sim') { const cp = Snr.calPoints, u = { t: '°C', sound: 'дБ', light: '%', rh: '%' }[Snr.channel];
+      h += `<div class="sec"><h4>Калибровка датчика</h4>
+        <div class="muted" id="pcal">Прибор: — · после калибровки: —</div>
+        <div class="pinrow"><input id="calref" type="number" step="0.1" placeholder="Эталон, ${u}"><button class="btn primary" id="p-calpt">📏 Запомнить точку</button></div>
+        ${cp.length ? `<table class="j">${cp.map(([x, y]) => `<tr><td>прибор ${x}</td><td>→</td><td><b>${y} ${u}</b></td></tr>`).join('')}</table>` : ''}
+        <div class="row"><button class="btn" id="p-calreset" ${cp.length ? '' : 'disabled'}>↺ Сбросить калибровку</button></div>
+        <p class="muted">${{ t: 'Положите Робика рядом с обычным термометром на пару минут и впишите, что показывает термометр. Вторая точка — тёплая вода с термометром.',
+          sound: 'Рядом с Робиком включите шумомер (подойдёт приложение на телефоне): точка в тишине и точка при громком хлопке.',
+          light: 'Точка «темно»: закройте датчик ладонью и впишите 0. Точка «ярко»: фонарик вплотную — 100.',
+          rh: 'Положите Робика рядом с гигрометром на пару минут и впишите его показание. Вторая точка — над тёплой водой.' }[Snr.channel]}
+          Одна точка сдвигает показания, две — ещё и растягивают шкалу. Хранится в этом браузере.</p></div>`; }
 
     h += `<div class="sec"><h4>Звук и подписи</h4><div class="row">
       <button class="btn ${RL.Voice.muted ? '' : 'on'}" id="mute">🔊 Озвучка</button>
@@ -736,6 +748,7 @@ window.RL = window.RL || {};
     const pe = $('#peye'); pe.style.background = col; pe.style.color = col;
     $('#peyet').textContent = { blue: 'синие (холодно)', warm: 'тёплые', happy: 'радость', wait: 'ждёт', neutral: 'спокойные', loud: 'красные (громко)', bright: 'щурится (ярко)' }[device.eyes] || device.eyes;
     $('#pvib').textContent = device.vibrate ? '📳 вибрация' : 'без вибрации';
+    const pc = $('#pcal'); if (pc) pc.textContent = Snr.raw === null ? 'Ждём данные от прибора…' : `Прибор: ${Snr.raw.toFixed(1)} · после калибровки: ${Snr.value.toFixed(1)}${Snr.calPoints.length ? '' : ' (без калибровки)'}`;
     const ph = $('#phold'), S = E.state;
     if (ph && S) ph.textContent = S.holdP >= 1 ? '✔ Записано' : S.same ? `Почти не изменилось — запишу как есть, если продержится ровно (${Math.round(S.holdP * 100)}%)` : S.holdP > 0.02 ? `Держим ровно… ${Math.round(S.holdP * 100)}%` : 'Ждём, когда дети сделают опыт';
   }
@@ -793,6 +806,8 @@ window.RL = window.RL || {};
       case 'p-sayagain': E.sayAgain(); break;
       case 'p-pin': E.pin(pinDraft); pinDraft = ''; refreshPanel(); break;
       case 'p-resetrec': E.resetRecords(); break;
+      case 'p-calpt': { const v = parseFloat(($('#calref').value || '').replace(',', '.')); if (!Snr.calPoint(v)) alert(isFinite(v) ? 'Нет данных от прибора — проверьте подключение.' : 'Впишите, что показывает эталонный прибор.'); refreshPanel(); break; }
+      case 'p-calreset': Snr.calReset(); refreshPanel(); break;
       case 'p-lesson': E.start(E.lesson.base); break;
       case 'jall': journalModal(); break;
       case 'csv': downloadCSV(); break;
@@ -842,7 +857,7 @@ window.RL = window.RL || {};
   document.addEventListener('keyup', e => { if (e.code === 'Space') { Snr.channel === 'rh' ? Snr.rh('room') : Snr.channel === 'light' ? Snr.light('room') : Snr.channel === 'sound' ? Snr.sound('quiet') : Snr.hold(null); refreshPanel(); } });
 
   document.addEventListener('rl:say', e => { const s = $('#subs'); if (s) s.textContent = e.detail; const p = $('#psay'); if (p) p.textContent = e.detail; });
-  Snr.onDevice(d => { device = d; });
+  Snr.onDevice(d => { const moved = device && device.source !== d.source; device = d; if (moved && panel.innerHTML) refreshPanel(); });   // подключили или отключили датчик — пульт перерисовать
 
   RL.Sync.subscribe(() => { if (panel.innerHTML) refreshPanel(); });
   E.subscribe((S, L) => { renderStage(S, L); renderPanel(S, L); autopilotTick(S, L); });
