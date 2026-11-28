@@ -788,12 +788,12 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "теплее всего у окна права ася солнышко греет даже зимой": {
+  "теплее всего у окна права ася вот это да": {
    "file": "audio/vo/heat2_win_window.mp3",
    "who": "robik",
    "id": "heat2_win_window",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.59
   },
   "теплее всего на полу вот это открытие может там теплый пол": {
    "file": "audio/vo/heat2_win_floor.mp3",
@@ -802,26 +802,26 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "почти одинаково значит в комнате тепло везде": {
+  "почти одинаково везде почти одна и та же температура": {
    "file": "audio/vo/heat2_tie.mp3",
    "who": "robik",
    "id": "heat2_tie",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.7
   },
-  "котенок уснул а я замерз погрейте меня ладошками по очереди": {
+  "котенок замерз согрейте меня ладошками я буду грелкой": {
    "file": "audio/vo/heat2_game.mp3",
    "who": "robik",
    "id": "heat2_game",
    "fx": "robotC",
-   "gain": 0.7
+   "gain": 0.78
   },
-  "мы узнали в одной комнате бывает и тепло и прохладно а термометр показывает где наклейка огонек в альбом группы": {
+  "мы узнали термометр показывает где теплее а где прохладнее наклейка огонек в альбом группы": {
    "file": "audio/vo/heat2_sticker.mp3",
    "who": "robik",
    "id": "heat2_sticker",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.69
   },
   "давайте найдем самое светлое место я умею мерить свет": {
    "file": "audio/vo/light2_intro.mp3",
@@ -905,12 +905,12 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "светлее всего у окна права ася солнце ярче любой лампы": {
+  "светлее всего у окна права ася вот это да": {
    "file": "audio/vo/light2_win_window.mp3",
    "who": "robik",
    "id": "light2_win_window",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.66
   },
   "светлее всего под лампой прав тим вот где читать книжку": {
    "file": "audio/vo/light2_win_lamp.mp3",
@@ -940,19 +940,19 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.72
   },
-  "смотритель дочитал а кораблик ждет мигайте фонариком включили выключили": {
+  "посветите смотрительнице на книжку двигайте фонарик ближе и дальше не слишком темно и не слишком ярко": {
    "file": "audio/vo/light2_game.mp3",
    "who": "robik",
    "id": "light2_game",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.73
   },
-  "мы узнали у окна и под лампой светло а там куда свет не доходит тень наклейка лучик в альбом группы": {
+  "мы узнали в комнате есть светлые места и тени и прибор показывает где наклейка лучик в альбом группы": {
    "file": "audio/vo/light2_sticker.mp3",
    "who": "robik",
    "id": "light2_sticker",
    "fx": "robotC",
-   "gain": 0.72
+   "gain": 0.73
   },
   "башня звуков сегодня в башне концерт и робик выбирает кто будет главным барабанщиком": {
    "file": "audio/vo/sound2_narr.mp3",
@@ -1077,7 +1077,7 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "после концерта совенок уснул помогите мне тихонько дойти до печенья": {
+  "шумозавр отстучит на барабане а вы повторите хлопками ровно столько же раз": {
    "file": "audio/vo/sound2_game.mp3",
    "who": "robik",
    "id": "sound2_game",
@@ -1172,19 +1172,19 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.71
   },
-  "больше всего воды улетает из теплого стакана права ася тепло помогает воде улетать": {
+  "больше всего воды улетает из теплого стакана права ася вот это открытие": {
    "file": "audio/vo/weather2_win_warmcup.mp3",
    "who": "robik",
    "id": "weather2_win_warmcup",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.64
   },
-  "больше всего воды у цветка прав тим листья тоже дышат водой": {
+  "больше всего воды у цветка прав тим вот это да": {
    "file": "audio/vo/weather2_win_plant.mp3",
    "who": "robik",
    "id": "weather2_win_plant",
    "fx": "robotC",
-   "gain": 0.74
+   "gain": 0.61
   },
   "больше всего воды над холодным стаканом вот это открытие давайте проверим еще раз": {
    "file": "audio/vo/weather2_win_coldcup.mp3",
@@ -1200,19 +1200,19 @@ RL.voicePack = {
    "fx": "robotC",
    "gain": 0.7
   },
-  "сделаем свое облако дышите на меня по очереди ха а а": {
+  "сделаем радугу сначала дышите на меня это дождик потом не дышите и ждите солнышко": {
    "file": "audio/vo/weather2_game.mp3",
    "who": "robik",
    "id": "weather2_game",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.79
   },
-  "мы узнали вода улетает в воздух и теплая улетает быстрее так рождаются облака наклейка капелька в альбом группы": {
+  "мы узнали вода улетает в воздух и прибор это замечает наклейка капелька в альбом группы": {
    "file": "audio/vo/weather2_sticker.mp3",
    "who": "robik",
    "id": "weather2_sticker",
    "fx": "robotC",
-   "gain": 0.71
+   "gain": 0.77
   },
   "маяк света смотрительница маяка хочет почитать книжку но не знает где в комнате светлее": {
    "file": "audio/vo/light2_narr.mp3",
@@ -1237,6 +1237,179 @@ RL.voicePack = {
    "who": "owlet",
    "id": "g_owlet_wake",
    "gain": 0.54
+  },
+  "прав тим вода оказалась теплее ладошек вот это открытие": {
+   "file": "audio/vo/heat1_win_water.mp3",
+   "who": "robik",
+   "id": "heat1_win_water",
+   "fx": "robotC",
+   "gain": 0.75
+  },
+  "мы узнали тепло можно измерить наклейка огонек в альбом группы": {
+   "file": "audio/vo/heat1_sticker.mp3",
+   "who": "robik",
+   "id": "heat1_sticker",
+   "fx": "robotC",
+   "gain": 0.63
+  },
+  "я теплый положите меня к котенку и уберите руки смотрим сколько я продержу тепло": {
+   "file": "audio/vo/heat2_g_warm.mp3",
+   "who": "robik",
+   "id": "heat2_g_warm",
+   "fx": "robotC",
+   "gain": 0.66
+  },
+  "теплый теперь накройте меня платочком и уберите руки будет ли дольше": {
+   "file": "audio/vo/heat2_g_warm2.mp3",
+   "who": "robik",
+   "id": "heat2_g_warm2",
+   "fx": "robotC",
+   "gain": 0.75
+  },
+  "ой грелка остыла котенок проснулся давайте еще раз но теперь с платочком": {
+   "file": "audio/vo/heat2_g_next.mp3",
+   "who": "robik",
+   "id": "heat2_g_next",
+   "fx": "robotC",
+   "gain": 0.59
+  },
+  "грелка снова остыла сравните когда тепло держалось дольше": {
+   "file": "audio/vo/heat2_g_done.mp3",
+   "who": "robik",
+   "id": "heat2_g_done",
+   "fx": "robotC",
+   "gain": 0.58
+  },
+  "мы узнали одни вещи пропускают свет лучше другие хуже и это можно измерить наклейка лучик в альбом группы": {
+   "file": "audio/vo/light1_sticker.mp3",
+   "who": "robik",
+   "id": "light1_sticker",
+   "fx": "robotC",
+   "gain": 0.54
+  },
+  "темно букв не видно поднесите фонарик ближе": {
+   "file": "audio/vo/light2_g_dark.mp3",
+   "who": "robik",
+   "id": "light2_g_dark",
+   "fx": "robotC",
+   "gain": 0.59
+  },
+  "ой слепит отодвиньте фонарик подальше": {
+   "file": "audio/vo/light2_g_bright.mp3",
+   "who": "robik",
+   "id": "light2_g_bright",
+   "fx": "robotC",
+   "gain": 0.62
+  },
+  "спасибо ребята я дочитала книжку": {
+   "file": "audio/vo/light2_g_done.mp3",
+   "who": "keeper",
+   "id": "light2_g_done",
+   "gain": 0.93
+  },
+  "ура мы нашли сколько света нужно для чтения": {
+   "file": "audio/vo/light2_g_robik.mp3",
+   "who": "robik",
+   "id": "light2_g_robik",
+   "fx": "robotC",
+   "gain": 0.64
+  },
+  "мы узнали разные вещи глушат звук по разному и это можно измерить наклейка колокольчик в альбом группы": {
+   "file": "audio/vo/sound1_sticker.mp3",
+   "who": "robik",
+   "id": "sound1_sticker",
+   "fx": "robotC",
+   "gain": 0.67
+  },
+  "ваша очередь хлопайте": {
+   "file": "audio/vo/sound2_g_turn.mp3",
+   "who": "robik",
+   "id": "sound2_g_turn",
+   "fx": "robotC",
+   "gain": 0.7
+  },
+  "точно как у шумозавра": {
+   "file": "audio/vo/sound2_g_ok.mp3",
+   "who": "robik",
+   "id": "sound2_g_ok",
+   "fx": "robotC",
+   "gain": 0.69
+  },
+  "ой не совпало послушайте еще раз": {
+   "file": "audio/vo/sound2_g_miss.mp3",
+   "who": "robik",
+   "id": "sound2_g_miss",
+   "fx": "robotC",
+   "gain": 0.67
+  },
+  "ничего попробуем следующий ритм": {
+   "file": "audio/vo/sound2_g_skip.mp3",
+   "who": "robik",
+   "id": "sound2_g_skip",
+   "fx": "robotC",
+   "gain": 0.66
+  },
+  "слушайте новый ритм": {
+   "file": "audio/vo/sound2_g_listen.mp3",
+   "who": "robik",
+   "id": "sound2_g_listen",
+   "fx": "robotC",
+   "gain": 0.63
+  },
+  "ура вы настоящие барабанщики": {
+   "file": "audio/vo/sound2_g_done.mp3",
+   "who": "robik",
+   "id": "sound2_g_done",
+   "fx": "robotC",
+   "gain": 0.68
+  },
+  "здорово постучали в следующий раз получится еще точнее": {
+   "file": "audio/vo/sound2_g_end.mp3",
+   "who": "robik",
+   "id": "sound2_g_end",
+   "fx": "robotC",
+   "gain": 0.7
+  },
+  "р р р отличный концерт спасибо ребята": {
+   "file": "audio/vo/sound2_g_guest.mp3",
+   "who": "shum",
+   "id": "sound2_g_guest",
+   "gain": 1.0
+  },
+  "мы узнали в воздухе прячется вода и прибор показывает где ее больше наклейка капелька в альбом группы": {
+   "file": "audio/vo/weather1_sticker.mp3",
+   "who": "robik",
+   "id": "weather1_sticker",
+   "fx": "robotC",
+   "gain": 0.69
+  },
+  "дождик есть теперь не дышите ждем пока станет сухо": {
+   "file": "audio/vo/weather2_g_rain.mp3",
+   "who": "robik",
+   "id": "weather2_g_rain",
+   "fx": "robotC",
+   "gain": 0.61
+  },
+  "высохло новая полоска радуги": {
+   "file": "audio/vo/weather2_g_dry.mp3",
+   "who": "robik",
+   "id": "weather2_g_dry",
+   "fx": "robotC",
+   "gain": 0.7
+  },
+  "еще дождик дышите на меня": {
+   "file": "audio/vo/weather2_g_again.mp3",
+   "who": "robik",
+   "id": "weather2_g_again",
+   "fx": "robotC",
+   "gain": 0.79
+  },
+  "ура радуга видите после дождика воздух потихоньку стал сухим": {
+   "file": "audio/vo/weather2_g_done.mp3",
+   "who": "robik",
+   "id": "weather2_g_done",
+   "fx": "robotC",
+   "gain": 0.74
   }
  }
 };

@@ -532,3 +532,79 @@ table.j.full tr:nth-child(2n) td { background:rgba(243,220,176,.35); }
 .ph .plogo { height:20px; background:#fff; border-radius:8px; padding:3px 6px; flex:none; }
 .ph b { white-space:nowrap; }
 .ph .grp { font-size:11px; opacity:.8; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* ---------- v25: потеря прибора и метка имитации ---------- */
+.pause.lost { background:rgba(60,18,12,.5); }
+.pause.lost .pbox b { font-size:5cqw; }
+.simtag { position:absolute; right:1.4cqw; bottom:1.2cqw; z-index:12; pointer-events:none;
+  font-family:var(--game-font); font-size:1.4cqw; color:#5a3212; background:rgba(255,244,220,.88); border:.2cqw solid #c9a46a; border-radius:2cqw; padding:.2cqw 1.2cqw; opacity:.85; }
+.sec.lostbox { background:#fff1ec; border-left:4px solid #e5484d; }
+.sec.lostbox h4 { color:#b3261e; }
+.sec.lostbox p { margin:4px 0 8px; }
+/* мир плавно отвечает показанию (замер и лаборатория) */
+.react { position:absolute; inset:0; pointer-events:none; z-index:1; --p:0; transition:opacity .3s; }
+.react.t { background:
+    radial-gradient(circle at var(--x) var(--y), rgba(255,150,40,calc(max(var(--p),0) * .55)), rgba(255,120,30,calc(max(var(--p),0) * .22)) 22%, transparent 48%),
+    radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(120,190,255,calc(max(calc(var(--p) * -1),0) * .55)) 100%); }
+.react.rh { background:
+    radial-gradient(ellipse 70% 55% at var(--x) var(--y), rgba(235,245,255,calc(var(--p) * .7)), rgba(220,235,250,calc(var(--p) * .35)) 45%, transparent 75%); }
+.react.sound { background: radial-gradient(circle at 77% 47%, rgba(255,90,80,calc(var(--p) * .25)), transparent 40%); }
+.react.light { background: radial-gradient(circle at var(--x) var(--y), rgba(255,240,170,calc(var(--p) * .35)), transparent 45%); }
+.scr.meas .bg { transition:filter .25s linear; }
+
+/* ---------- v25: игры вторых уроков ---------- */
+/* «Грелка для котёнка» */
+.kitten { position:absolute; left:67%; bottom:7%; width:27cqw; transform:translateX(-50%); z-index:3; filter:drop-shadow(0 1cqw 1cqw rgba(0,0,0,.3)); }
+.kitten.emo { font-size:12cqw; text-align:center; }
+.ktimer { position:absolute; left:67%; top:22%; transform:translateX(-50%); z-index:8; display:flex; align-items:baseline; gap:.6cqw; padding:.6cqw 2cqw;
+  font-family:var(--game-font); color:#5a3212; background:linear-gradient(var(--parch), var(--parch-d)); border:.35cqw solid var(--plank-d); border-radius:2cqw; box-shadow:0 .5cqw 0 #6e4220; }
+.ktimer span { font-size:3cqw; } .ktimer b { font-size:5cqw; min-width:6cqw; text-align:right; } .ktimer small { font-size:2cqw; }
+.ktimes { position:absolute; right:2cqw; bottom:3cqw; z-index:8; display:flex; flex-direction:column; gap:.8cqw; }
+.kt { display:grid; grid-template-columns:3.4cqw 12cqw 12cqw 5cqw; align-items:center; gap:.6cqw; padding:.5cqw 1cqw; border-radius:1.4cqw;
+  font-family:var(--game-font); color:#5a3212; background:rgba(255,248,232,.92); box-shadow:0 .4cqw 0 #d6c3a5; font-size:1.7cqw; }
+.kt.now { outline:.3cqw solid #ffb347; }
+.kt .ki { font-size:2.6cqw; } .kt b { font-size:2.2cqw; text-align:right; }
+.kt .kb { height:1.6cqw; border-radius:.8cqw; background:#eadcc4; overflow:hidden; } .kt .kb i { display:block; height:100%; background:linear-gradient(90deg,#ffcf3f,#ff8a3d); border-radius:.8cqw; transition:width .6s; }
+.pbar.cool div { background:linear-gradient(90deg, #ffb347, #9fd0ff, #4a90d9); }
+.pbar.sunny div { background:linear-gradient(90deg, #9fd0ff, #ffe066, #ffb300); }
+.chartbox.kchart { left:2cqw; right:auto; width:26cqw; bottom:8cqw; height:8cqw; }
+
+/* «Повтори ритм Шумозавра» */
+.rhythm { position:absolute; left:3cqw; top:9cqw; z-index:8; padding:1.2cqw 1.8cqw; display:flex; flex-direction:column; gap:.8cqw;
+  background:linear-gradient(var(--parch), var(--parch-d)); border:.35cqw solid var(--plank-d); border-radius:2cqw; box-shadow:0 .6cqw 0 #6e4220, 0 1cqw 1.6cqw rgba(0,0,0,.3); }
+.rhythm .rr { display:flex; align-items:center; gap:1cqw; }
+.rhythm .rl { font-size:3.4cqw; width:4.4cqw; }
+.rhythm i { font-style:normal; font-size:3.6cqw; width:5.4cqw; height:5.4cqw; display:flex; align-items:center; justify-content:center; border-radius:50%;
+  background:#eadcc4; filter:grayscale(1) opacity(.35); transition:all .15s; }
+.rhythm i.on { filter:none; background:#ffe9a8; box-shadow:0 0 0 .3cqw #ffb347; animation:pop .35s; }
+.rhythm i.extra { filter:none; background:#ffd0cc; box-shadow:0 0 0 .3cqw #e5484d; animation:pop .35s; }
+.rhythm .rn { font-family:var(--game-font); font-size:1.6cqw; color:#8a5a32; text-align:center; }
+
+/* «Свет для чтения» */
+.book { position:absolute; left:58%; top:44%; transform:translate(-50%,-50%); z-index:6; text-align:center; transition:filter .3s; filter:brightness(.55); }
+.book .bk { font-size:10cqw; display:block; line-height:1; filter:drop-shadow(0 .6cqw .6cqw rgba(0,0,0,.35)); }
+.book.lit { filter:brightness(1.1) drop-shadow(0 0 2cqw rgba(255,230,140,.9)); }
+.book.glare { filter:brightness(1.8) blur(.15cqw); }
+.book .bpages { display:flex; gap:.6cqw; justify-content:center; margin-top:.8cqw; }
+.book .bpages i { width:2.2cqw; height:2.8cqw; border-radius:.3cqw; background:rgba(255,255,255,.35); border:.2cqw solid rgba(90,50,18,.6); }
+.book .bpages i.on { background:#fff8e0; animation:pop .4s; }
+.lmeter { position:absolute; left:50%; bottom:3cqw; transform:translateX(-50%); width:46cqw; height:4.4cqw; z-index:8; display:flex; border-radius:2.2cqw; overflow:visible;
+  border:.35cqw solid var(--plank-d); box-shadow:0 .5cqw 0 #3a1f0a; }
+.lmeter .lz { display:flex; align-items:center; justify-content:center; font-size:2.2cqw; }
+.lmeter .lz.dark { background:#36405a; border-radius:2cqw 0 0 2cqw; } .lmeter .lz.ok { background:#5cc44a; } .lmeter .lz.bright { background:#fff1a8; border-radius:0 2cqw 2cqw 0; }
+.lmeter .lneedle { position:absolute; top:-1.2cqw; bottom:-1.2cqw; width:.7cqw; margin-left:-.35cqw; background:#e5484d; border-radius:.4cqw; box-shadow:0 0 0 .2cqw #fff; transition:left .15s; }
+.lmeter .lhold { position:absolute; left:0; right:0; bottom:-2cqw; height:.9cqw; border-radius:.5cqw; background:rgba(0,0,0,.25); overflow:hidden; }
+.lmeter .lhold i { display:block; height:100%; width:0; background:#fff8e0; transition:width .15s; }
+
+/* «Радуга после дождя» */
+.rainbow { position:absolute; left:50%; top:62%; width:64cqw; height:32cqw; transform:translate(-50%,-100%); z-index:2; pointer-events:none; }
+.rainbow .rb { position:absolute; inset:0; border-radius:32cqw 32cqw 0 0; opacity:0; transition:opacity 1.2s;
+  -webkit-mask:radial-gradient(circle at 50% 100%, transparent 0 var(--r0), #000 var(--r0) var(--r1), transparent var(--r1)); mask:radial-gradient(circle at 50% 100%, transparent 0 var(--r0), #000 var(--r0) var(--r1), transparent var(--r1)); }
+.rainbow .rb.on { opacity:.85; }
+.rainbow .rb0 { --r0:27cqw; --r1:32cqw; background:linear-gradient(#ff5a5a, #ff9a3d); }
+.rainbow .rb1 { --r0:22cqw; --r1:27cqw; background:linear-gradient(#ffe14d, #6ad16a); }
+.rainbow .rb2 { --r0:17cqw; --r1:22cqw; background:linear-gradient(#4fb6ff, #8a6cff); }
+.sun { position:absolute; right:8%; top:8%; font-size:9cqw; z-index:3; opacity:.15; transform:scale(var(--s,1)); transition:opacity .8s, transform .3s; filter:drop-shadow(0 0 2cqw rgba(255,220,80,.8)); }
+.sun.on { opacity:1; }
+a.btn { color:inherit; text-decoration:none; display:inline-block; }
+.power.kpow { left:42%; } .power.kpow .pbar { width:26cqw; }

@@ -20,6 +20,10 @@ RL.Sensor = (function () {
   let hist = [];
   let value = CH.t.start, raw = CH.t.start;
   let source = 'sim';
+  // потеря прибора: порт закрылся, данные перестали приходить или нет нужного канала.
+  // Тогда показания замирают и симулятор САМ НЕ включается — его включает педагог (useSim).
+  let lost = null;            // null или { reason: 'closed' | 'silent' | 'nochannel' | 'mic', kind: 'serial' | 'mic' }
+  let lastSerialAt = 0, connectedAt = 0, closing = false;
   let device = { eyes: 'neutral', vibrate: 0, connected: true };
 
   // ---------- симулятор ----------
@@ -58,7 +62,7 @@ RL.Sensor = (function () {
     port = await navigator.serial.requestPort();
     await port.open({ baudRate: 115200 });
     writer = port.writable.getWriter();
-    source = 'serial'; emitDevice();
+    source = 'serial'; lost = null; connectedAt = lastSerialAt = performance.now(); emitDevice();
     readLoop();
   }
   async function readLoop() {
@@ -73,13 +77,23 @@ RL.Sensor = (function () {
         while ((i = buf.indexOf('\n')) >= 0) { parseLine(buf.slice(0, i).trim()); buf = buf.slice(i + 1); }
       }
     } catch (e) { console.warn(e); }
-    source = 'sim'; emitDevice();
+    writer = null;
+    if (closing) { closing = false; return; }
+    lose('closed', 'serial');
+  }
+  function lose(reason, kind) { if (lost) return; lost = { reason, kind }; hist = []; emitDevice(); }
+  // переключиться на имитацию — только по решению педагога
+  async function useSim() {
+    if (port) { closing = true; try { await port.close(); } catch (e) {} port = null; }
+    if (micStream) { micStream.getTracks().forEach(t => { t.onended = null; t.stop(); }); micStream = null; analyser = null; }
+    closing = false; lost = null; source = 'sim'; raw = value; emitDevice();
   }
   function parseLine(line) {
     if (!line) return;
     try { if (line[0] === '{') { const o = JSON.parse(line); if (o.ch in serialValue) serialValue[o.ch] = +o.v; return; } } catch (e) { return; }
     const m = line.match(/^(t|s|l|h)\s*[:=]\s*(-?\d+(\.\d+)?)/i);
     if (m) serialValue[{ t: 't', s: 'sound', l: 'light', h: 'rh' }[m[1].toLowerCase()]] = +m[2];
+    if (m || line[0] === '{') { lastSerialAt = performance.now(); if (lost && lost.reason === 'silent') { lost = null; emitDevice(); } }
   }
   function send(cmd) {
     if (source === 'serial' && writer) writer.write(new TextEncoder().encode(cmd + '\n')).catch(() => {});
@@ -94,7 +108,8 @@ RL.Sensor = (function () {
     const src = ac.createMediaStreamSource(micStream);
     analyser = ac.createAnalyser(); analyser.fftSize = 1024; micBuf = new Float32Array(analyser.fftSize);
     src.connect(analyser);
-    source = 'mic'; emitDevice();
+    micStream.getTracks().forEach(t => t.onended = () => lose('mic', 'mic'));   // микрофон выдернули или запретили
+    source = 'mic'; lost = null; emitDevice();
   }
   function micLevel() {
     // звук не записывается и никуда не отправляется: берётся только уровень
@@ -103,7 +118,7 @@ RL.Sensor = (function () {
     const rms = Math.sqrt(s / micBuf.length) + 1e-7;
     return Math.max(30, Math.min(100, 20 * Math.log10(rms) + 96));   // условная калибровка
   }
-  function disconnectMic() { if (micStream) micStream.getTracks().forEach(t => t.stop()); micStream = null; analyser = null; source = 'sim'; emitDevice(); }
+  function disconnectMic() { if (micStream) micStream.getTracks().forEach(t => t.stop()); micStream = null; analyser = null; source = 'sim'; lost = null; emitDevice(); }
 
   // ---------- калибровка настоящего датчика (USB и микрофон) ----------
   // По одной-двум точкам «показал датчик → показал эталон» на канал: одна точка — сдвиг, две — сдвиг и масштаб.
@@ -123,6 +138,11 @@ RL.Sensor = (function () {
   setInterval(() => {
     const now = performance.now(); const dt = (now - last) / 1000; last = now;
     let r;
+    if (source === 'serial' && !lost) {   // сторож: прибор молчит или не шлёт этот канал
+      if (now - lastSerialAt > 3000) lose('silent', 'serial');
+      else if (serialValue[channel] === null && now - connectedAt > 3000) lose('nochannel', 'serial');
+    }
+    if (lost) return;                      // показания замерли, урок стоит на паузе
     if (source === 'serial' && serialValue[channel] !== null) r = serialValue[channel];
     else if (source === 'mic' && channel === 'sound' && analyser) r = micLevel();
     if (r !== undefined) { rawDev = rawDev === null ? r : rawDev + (r - rawDev) * CH[channel].smooth; r = calibrate(channel, r); }
@@ -130,7 +150,7 @@ RL.Sensor = (function () {
     value += (r - value) * CH[channel].smooth;
     hist.push({ t: now / 1000, v: value });
     while (hist.length && hist[0].t < now / 1000 - 15) hist.shift();
-    const s = { ch: channel, v: value, trend: trend(), ts: now };
+    const s = { ch: channel, v: value, r, trend: trend(), ts: now };   // r — без сглаживания (для коротких хлопков)
     listeners.forEach(fn => fn(s));
   }, 1000 / HZ);
 
@@ -146,18 +166,19 @@ RL.Sensor = (function () {
     if (patch.vibrate) { send('vib=1'); setTimeout(() => { device.vibrate = 0; emitDevice(); }, 350); }
     emitDevice();
   }
-  function emitDevice() { deviceListeners.forEach(fn => fn({ ...device, source })); }
+  function emitDevice() { deviceListeners.forEach(fn => fn({ ...device, source, lost })); }
 
   return {
     on: fn => listeners.add(fn),
-    onDevice: fn => { deviceListeners.add(fn); fn({ ...device, source }); },
+    onDevice: fn => { deviceListeners.add(fn); fn({ ...device, source, lost }); },
+    get lost() { return lost; }, useSim,
     get value() { return value; },
     get source() { return source; },
     get channel() { return channel; },
     unit: () => CH[channel].unit,
     setChannel(ch) {
       if (!CH[ch] || ch === channel) return;
-      channel = ch; hist = []; value = raw = CH[ch].start; rawDev = null;
+      channel = ch; hist = []; value = raw = CH[ch].start; rawDev = null; if (source === 'serial') connectedAt = performance.now();
       if (source === 'mic' && ch !== 'sound') disconnectMic();
     },
     sim, isStable, slope, mean, history: () => hist,
@@ -177,6 +198,7 @@ RL.Sensor = (function () {
     },
     calReset() { delete cal[channel]; saveCal(); },
     // для проверки без прибора: строка как будто пришла по USB
-    debugSerial(line) { source = 'serial'; parseLine(line); emitDevice(); }
+    debugSerial(line) { if (source !== 'serial') { source = 'serial'; connectedAt = performance.now(); } lost = null; parseLine(line); emitDevice(); },
+    debugLose(reason = 'closed') { lose(reason, source === 'mic' ? 'mic' : 'serial'); }
   };
 })();

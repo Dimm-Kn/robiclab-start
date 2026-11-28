@@ -162,7 +162,7 @@ RL.Engine = (function () {
 
   function enterStep(i) {
     clearTimers();
-    S.paused = false;   // переход по шагам снимает паузу
+    S.paused = !!RL.Sensor.lost; S.lostPause = !!RL.Sensor.lost;   // переход по шагам снимает паузу, кроме потери прибора
     S.i = Math.max(0, Math.min(i, L.steps.length - 1));
     const st = step();
     S.screen = st.type; S.reaction = null;
@@ -179,6 +179,10 @@ RL.Engine = (function () {
     }
     if (st.type === 'game' && st.game === 'beam') { S.game = { kind: 'beam', flashes: 0, need: st.flashes || 8, lit: false, done: false, won: 0, pos: 0 }; RL.Sensor.setDevice({ eyes: 'wait' }); RL.Voice.say(st.say); }
     else if (st.type === 'game' && st.game === 'owl') { S.game = { kind: 'owl', pos: 0, wake: 0, wakes: 0, awake: false, done: false, zone: 'quiet', won: 0 }; RL.Sensor.setDevice({ eyes: 'wait' }); RL.Voice.say(st.say); }
+    else if (st.type === 'game' && st.game === 'kitten') { S.game = { kind: 'kitten', round: 1, rounds: st.rounds || 2, phase: 'warm', base: RL.Sensor.value, progress: 0, peak: null, coolAt: 0, secs: 0, times: [], won: 0 }; RL.Sensor.setDevice({ eyes: 'blue' }); RL.Voice.say(st.say); }
+    else if (st.type === 'game' && st.game === 'drum') { S.game = { kind: 'drum', round: 1, rounds: st.patterns.length, need: st.patterns[0], phase: 'listen', beat: 0, count: 0, lit: false, quietSince: 0, tries: 0, won: 0, results: [] }; RL.Sensor.setDevice({ eyes: 'wait' }); RL.Voice.say(st.say); later(3800, () => drumListen()); }
+    else if (st.type === 'game' && st.game === 'read') { S.game = { kind: 'read', pages: 0, need: st.pages || 5, zone: 'dark', hold: 0, lastT: 0, done: false, won: 0, saidZone: '' }; RL.Sensor.setDevice({ eyes: 'wait' }); RL.Voice.say(st.say); }
+    else if (st.type === 'game' && st.game === 'rainbow') { S.game = { kind: 'rainbow', round: 1, rounds: st.rounds || 3, phase: 'wet', base: RL.Sensor.value, peak: null, progress: 0, won: 0 }; RL.Sensor.setDevice({ eyes: 'wait' }); RL.Voice.say(st.say); }
     else if (st.type === 'game') { S.game = { kind: st.game === 'cloud' ? 'cloud' : 'ice', round: 1, rounds: roundsPref || st.rounds, base: RL.Sensor.value, progress: 0, between: false, won: 0 }; RL.Sensor.setDevice({ eyes: 'blue' }); RL.Voice.say(st.say); }
     if (st.type === 'sticker') { finish(); RL.Sensor.setDevice({ eyes: 'happy', vibrate: 1 }); RL.Voice.say(st.say); }
     emit();
@@ -204,6 +208,29 @@ RL.Engine = (function () {
       if (S.cond < st.conditions.length - 1) { S.cond++; S.reaction = null; startCondition(); emit(); }
       else enterStep(S.i + 1);
     });
+  }
+
+  // «Повтори ритм»: Шумозавр отстукивает need ударов (экран рисует каждый удар), потом очередь детей
+  function drumListen() {
+    const g = S && S.game; if (!g || g.kind !== 'drum') return;
+    g.phase = 'listen'; g.beat = 0; g.count = 0; g.lit = false; emit();
+    const st = step(), gap = st.gap || 650;
+    for (let k = 1; k <= g.need; k++) later(k * gap, () => { if (S.game !== g) return; g.beat = k; emit(); });
+    later((g.need + 1) * gap + 200, () => { if (S.game !== g) return; g.phase = 'clap'; g.count = 0; g.quietSince = 0; RL.Sensor.setDevice({ eyes: 'loud' }); RL.Voice.say(st.lines.turn); emit(); });
+  }
+  function drumJudge() {
+    const g = S.game, st = step(), ok = g.count === g.need;
+    g.phase = 'judge'; g.results[g.round - 1] = { need: g.need, got: g.count, ok };
+    if (ok) { g.won++; award('drum' + g.round); RL.Sensor.setDevice({ eyes: 'happy', vibrate: 1 }); }
+    else RL.Sensor.setDevice({ eyes: 'wait' });
+    const last = g.round >= g.rounds;
+    if (!ok && g.tries < 1) {                      // одна попытка заново на каждый ритм
+      g.tries++; RL.Voice.say(st.lines.miss); emit();
+      later(3200, () => drumListen()); return;
+    }
+    if (last) { g.phase = 'done'; RL.Voice.sayParts([{ text: g.won ? st.lines.done : st.lines.end, who: 'robik' }, { text: st.lines.guest, who: 'shum' }]); emit(); later(5200, () => enterStep(S.i + 1)); return; }
+    RL.Voice.say(ok ? st.lines.ok : st.lines.skip); emit();
+    later(2800, () => { g.round++; g.need = st.patterns[g.round - 1]; g.tries = 0; RL.Voice.say(st.lines.listen); later(1800, () => drumListen()); emit(); });
   }
 
   function finish() {
@@ -310,6 +337,69 @@ RL.Engine = (function () {
         later(3800, () => enterStep(S.i + 1));
       }
     }
+    // «Грелка для котёнка»: согреть Робика ладошками, потом отпустить и смотреть, сколько он держит тепло
+    if (st.type === 'game' && S.game && S.game.kind === 'kitten' && S.game.phase !== 'between' && S.game.phase !== 'done') {
+      const g = S.game, now = performance.now();
+      if (g.phase === 'warm') {
+        g.base = Math.min(g.base, s.v);
+        g.progress = Math.max(0, Math.min(1, (s.v - g.base) / st.rise));
+        if (g.progress >= 1) { g.phase = 'cool'; g.peak = s.v; g.coolAt = now; g.secs = 0; RL.Sensor.setDevice({ eyes: 'warm', vibrate: 1 }); RL.Voice.say(g.round === 1 ? st.lines.warm : st.lines.warm2); }
+      } else if (g.phase === 'cool') {
+        g.peak = Math.max(g.peak, s.v);
+        g.secs = (now - g.coolAt) / 1000;
+        g.progress = Math.max(0, Math.min(1, (g.peak - s.v) / st.drop));
+        if (g.progress >= 1 || g.secs >= (st.maxSec || 90)) {
+          g.times.push(Math.round(g.secs)); g.won++; award('kitten' + g.round);
+          RL.Sensor.setDevice({ eyes: 'blue', vibrate: 1 });
+          const last = g.round >= g.rounds;
+          g.phase = last ? 'done' : 'between';
+          RL.Voice.say(last ? st.lines.done : st.lines.next);
+          later(last ? 6000 : 5000, () => { if (last) { enterStep(S.i + 1); return; } g.round++; g.phase = 'warm'; g.base = RL.Sensor.value; g.progress = 0; RL.Sensor.setDevice({ eyes: 'blue' }); emit(); });
+        }
+      }
+    }
+    // «Повтори ритм Шумозавра»: хлопок = громкость поднялась выше loud и снова опустилась ниже quiet
+    if (st.type === 'game' && S.game && S.game.kind === 'drum' && S.game.phase === 'clap') {
+      const g = S.game, now = performance.now();
+      const lv = s.r !== undefined ? s.r : s.v;   // хлопок короткий: смотрим на несглаженное показание
+      if (!g.lit && lv >= st.loud) { g.lit = true; g.count++; g.quietSince = 0; RL.Sensor.setDevice({ eyes: 'loud' }); }
+      else if (g.lit && lv <= st.quiet) { g.lit = false; RL.Sensor.setDevice({ eyes: 'wait' }); }
+      if (!g.lit && g.count > 0) { if (!g.quietSince) g.quietSince = now; else if (now - g.quietSince > (st.settle || 1800)) drumJudge(); }
+      if (g.count > g.need + 2) drumJudge();
+    }
+    // «Свет для чтения»: держать яркость в удобной полосе — страницы перелистываются
+    if (st.type === 'game' && S.game && S.game.kind === 'read' && !S.game.done) {
+      const g = S.game, now = performance.now(), dt = g.lastT ? Math.min(0.2, (now - g.lastT) / 1000) : 0; g.lastT = now;
+      g.zone = s.v < st.lo ? 'dark' : s.v > st.hi ? 'bright' : 'ok';
+      if (g.zone === 'ok') g.hold += dt; else g.hold = Math.max(0, g.hold - dt * 2);
+      RL.Sensor.setDevice({ eyes: g.zone === 'bright' ? 'bright' : g.zone === 'ok' ? 'happy' : 'wait' });
+      if (g.zone !== g.saidZone && g.zone !== 'ok' && !RL.Voice.speaking && now - (S.saidAt || 0) > 4000) { S.saidAt = now; RL.Voice.say(st.lines[g.zone]); }
+      g.saidZone = g.zone;
+      if (g.hold >= (st.pageSec || 2.5)) {
+        g.hold = 0; g.pages++; award('page' + g.pages); RL.Sensor.setDevice({ eyes: 'happy', vibrate: 1 });
+        if (g.pages >= g.need) { g.done = true; g.won = 1; RL.Voice.sayParts([{ text: st.lines.done, who: 'keeper' }, { text: st.lines.robik, who: 'robik' }]); later(6500, () => enterStep(S.i + 1)); }
+      }
+    }
+    // «Радуга после дождя»: подышать (влажность выросла на rise) — дождик; подождать, пока высохнет, — полоска радуги
+    if (st.type === 'game' && S.game && S.game.kind === 'rainbow' && (S.game.phase === 'wet' || S.game.phase === 'dry')) {
+      const g = S.game;
+      if (g.phase === 'wet') {
+        g.base = Math.min(g.base, s.v);
+        g.progress = Math.max(0, Math.min(1, (s.v - g.base) / st.rise));
+        if (g.progress >= 1) { g.phase = 'dry'; g.peak = s.v; g.progress = 0; RL.Sensor.setDevice({ eyes: 'wait', vibrate: 1 }); RL.Sensor.rh && RL.Sensor.rh('room'); RL.Voice.say(st.lines.rain); }
+      } else {
+        g.peak = Math.max(g.peak, s.v);
+        const span = Math.max(1, g.peak - g.base - st.dryTol);
+        g.progress = Math.max(0, Math.min(1, (g.peak - s.v) / span));
+        if (g.progress >= 1) {
+          g.won++; award('rainbow' + g.round); RL.Sensor.setDevice({ eyes: 'happy', vibrate: 1 });
+          const last = g.round >= g.rounds;
+          g.phase = last ? 'done' : 'between';
+          RL.Voice.say(last ? st.lines.done : st.lines.dry);
+          later(last ? 6000 : 3800, () => { if (last) { enterStep(S.i + 1); return; } g.round++; g.phase = 'wet'; g.base = RL.Sensor.value; g.progress = 0; RL.Voice.say(st.lines.again); emit(); });
+        }
+      }
+    }
     // «Согрей Робика» и «Вырасти облако»: один механизм — показание выросло на rise от своего минимума
     if (st.type === 'game' && S.game && (S.game.kind === 'ice' || S.game.kind === 'cloud') && !S.game.between && S.game.round <= S.game.rounds) {
       const g = S.game;
@@ -330,6 +420,13 @@ RL.Engine = (function () {
       }
     }
     emit();
+  });
+
+  // прибор пропал посреди урока: всё встаёт на паузу, пока педагог не переподключит его или не включит имитацию
+  RL.Sensor.onDevice(d => {
+    if (!S || !L) return;
+    if (d.lost && !S.lostPause) { S.lostPause = true; if (!S.paused) { S.paused = true; freezeTimers(); RL.Voice.hold(); } emit(); }
+    else if (!d.lost && S.lostPause) { S.lostPause = false; S.paused = false; thawTimers(); RL.Voice.release(); emit(); }
   });
 
   return {
@@ -365,6 +462,7 @@ RL.Engine = (function () {
     repeat() { if (!L) return; enterStep(S.i); },
     pause(p) {
       if (!S || !L) return; const want = p === undefined ? !S.paused : !!p; if (want === S.paused) return;
+      if (!want && RL.Sensor.lost) return;   // пока прибор потерян, продолжить нельзя: переподключить или включить имитацию
       S.paused = want;
       if (want) { freezeTimers(); RL.Voice.hold(); } else { thawTimers(); RL.Voice.release(); }
       emit();

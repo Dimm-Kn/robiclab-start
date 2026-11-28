@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Карточки уроков — РобикЛаб.Старт</title>
+<link rel="icon" href="img/logo_mark.svg">
+<style>
+  :root { --ink:#3a2a1a; --brown:#5a3212; --plank:#9b5f30; --plank-d:#4a2810; --parch:#fff8ea; --line:#ecdcc0; --accent:#e98a3c; --teal:#1a8f8a; --muted:#7a6650; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#f3e6cc; color:var(--ink); font:15px/1.5 "Segoe UI", system-ui, sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:linear-gradient(#b8783f, #8a5126); border-bottom:4px solid var(--plank-d); padding:10px max(16px, env(safe-area-inset-left, 0px)); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header img { height:30px; background:#fff; border-radius:8px; padding:3px 6px; }
+  header h1 { margin:0; font:900 20px "Segoe UI Black", "Arial Rounded MT Bold", sans-serif; color:#fff3d6; text-shadow:0 2px 0 var(--plank-d); flex:1; min-width:200px; }
+  header button { font:700 14px inherit; padding:6px 12px; border-radius:10px; border:2px solid var(--plank-d); background:#fff4dc; color:var(--brown); cursor:pointer; box-shadow:0 3px 0 var(--plank-d); }
+  nav { display:flex; flex-wrap:wrap; gap:6px; padding:10px max(16px, env(safe-area-inset-left, 0px)); }
+  nav a { text-decoration:none; color:var(--brown); background:#fff4dc; border:1.5px solid #c9a46a; border-radius:20px; padding:3px 12px; font-size:14px; }
+  nav a:hover { background:#ffe7b8; }
+  main { max-width:900px; margin:0 auto; padding:0 max(16px, env(safe-area-inset-right, 0px)) 40px max(16px, env(safe-area-inset-left, 0px)); }
+  .card { scroll-margin-top:70px; background:var(--parch); border:3px solid var(--plank-d); border-radius:16px; margin:18px 0; box-shadow:0 6px 0 #6e4220; overflow:hidden; }
+  .card > h2 { margin:0; padding:12px 18px; background:linear-gradient(#c0814a, #8f5329); color:#fff3d6; font:900 21px "Segoe UI Black", "Arial Rounded MT Bold", sans-serif; text-shadow:0 2px 0 var(--plank-d); text-wrap:balance; }
+  .card > h2 small { display:block; font:600 13px "Segoe UI", sans-serif; color:#ffe2b0; text-shadow:none; }
+  .sec { padding:10px 18px; border-top:1px dashed var(--line); }
+  .sec h3 { margin:0 0 6px; font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--plank); }
+  .sec ul, .sec ol { margin:0; padding-left:22px; }
+  .sec li { margin:3px 0; }
+  .say { color:var(--teal); }
+  .muted { color:var(--muted); font-size:14px; }
+  .var { display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.4fr); gap:4px 14px; }
+  .var b { color:var(--brown); }
+  .q { margin:6px 0; padding:6px 10px; background:#fff; border-left:4px solid var(--accent); border-radius:6px; }
+  .q span { display:block; color:var(--muted); font-size:14px; }
+  .note { margin-top:6px; padding:6px 10px; background:#e9f7f5; border-radius:8px; font-size:14px; }
+  @media (max-width:560px) { .var { grid-template-columns:1fr; } }
+  @media print {
+    header, nav { display:none; } body { background:#fff; } .card { box-shadow:none; break-inside:avoid-page; page-break-after:always; margin:0; }
+  }
+</style>
+</head>
+<body>
+<header><img src="img/logo.svg" alt="робиклаб"><h1>Карточки уроков · Городок Почему</h1><button onclick="print()">Печать</button></header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<script src="js/content/lesson-heat-1.js?v=25"></script>
+<script src="js/content/lesson-heat-2.js?v=25"></script>
+<script src="js/content/lesson-light-1.js?v=25"></script>
+<script src="js/content/lesson-light-2.js?v=25"></script>
+<script src="js/content/lesson-sound-1.js?v=25"></script>
+<script src="js/content/lesson-sound-2.js?v=25"></script>
+<script src="js/content/lesson-weather-1.js?v=25"></script>
+<script src="js/content/lesson-weather-2.js?v=25"></script>
+<script>
+// Карточка собирается из того же контент-пакета, что и урок: поменяли реплику в уроке — поменялась и карточка.
+const HOUSE = { heat: '🔥 Дом тепла', light: '💡 Маяк света', sound: '🔔 Башня звуков', weather: '☁️ Метеостанция' };
+const UNIT = { t: 'температуру', sound: 'громкость', light: 'яркость', rh: 'влажность' };
+const esc = t => String(t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const ids = ['heat-1', 'heat-2', 'light-1', 'light-2', 'sound-1', 'sound-2', 'weather-1', 'weather-2'].filter(id => RL.content[id]);
+document.getElementById('nav').innerHTML = ids.map(id => `<a href="#${id}">${HOUSE[RL.content[id].house].split(' ')[0]} ${esc(RL.content[id].title)}</a>`).join('');
+document.getElementById('main').innerHTML = ids.map(id => {
+  const L = RL.content[id], c = L.card || {}, S = t => L.steps.find(x => x.type === t);
+  const g = S('guess'), m = S('measure'), cmp = S('compare'), game = S('game'), st = S('sticker');
+  const lbl = k => { const x = m && m.conditions.find(z => z.key === k); return x ? x.icon + ' ' + x.label : k; };
+  const flow = L.steps.map(x => {
+    let say = x.type === 'measure' ? x.conditions.map(z => z.icon + ' ' + z.label).join(' → ') : x.type === 'compare' ? 'Робик показывает диаграмму и говорит, чья догадка подтвердилась' : x.say;
+    return `<li><b>${esc(x.title)}</b>${say ? `<br><span class="say">${esc(say)}</span>` : ''}${x.hint ? `<br><span class="muted">${esc(x.hint)}</span>` : ''}</li>`; }).join('');
+  const keys = cmp ? Object.keys(cmp.win) : [];
+  const vars = cmp ? keys.map(k => `<b>${esc(lbl(k))}</b><span>${esc(cmp.found && cmp.found[k] || '')}. Робик: «${esc(cmp.win[k])}»</span>`).join('') +
+    `<b>🤝 Почти одинаково</b><span>${esc(cmp.found && cmp.found.tie || '')}. Робик: «${esc(cmp.tie)}»</span>` : '';
+  const why = cmp && cmp.why ? Object.entries(cmp.why).map(([k, w]) => `<div class="q">${k === 'tie' ? '🤝' : esc(lbl(k))}: <b>${esc(w.ask || w.text)}</b>${w.idea ? `<span>Возможная причина: ${esc(w.idea)}</span>` : ''}</div>`).join('') : '';
+  return `<article class="card" id="${id}">
+    <h2>${esc(L.title)}<small>${HOUSE[L.house]} · ${esc(L.age)} · ${L.minutes} мин · прибор измеряет ${UNIT[L.channel]}</small></h2>
+    <div class="sec"><h3>Цель</h3>${esc(c.goal || '—')}</div>
+    <div class="sec"><h3>Подготовка</h3><ul>${(c.prep || []).map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    ${g ? `<div class="sec"><h3>Догадки детей</h3><ul>${g.options.map(o => `<li>${o.icon} ${esc(o.label)} — <span class="say">${esc(o.say)}</span></li>`).join('')}</ul></div>` : ''}
+    <div class="sec"><h3>Ход занятия</h3><ol>${flow}</ol></div>
+    ${cmp ? `<div class="sec"><h3>Варианты результата</h3><div class="var">${vars}</div>
+      <div class="note">Робик говорит то, что показал прибор. Неожиданный результат — тоже результат: обсудите, что могло повлиять, и при желании повторите замер.</div></div>` : ''}
+    ${why ? `<div class="sec"><h3>Помощь педагогу: вопросы без готового ответа</h3>${why}
+      <p class="muted">Прибор показывает, что произошло. Почему — выясняйте вместе с детьми. Причина остаётся догадкой, пока её не проверили.</p></div>` : ''}
+    <div class="sec"><h3>Завершение</h3>Итог группы — по фактическому замеру (он же на наклейке в конце). ${st ? `Робик: <span class="say">«${esc(st.say)}»</span>` : ''}${st && st.hint ? `<br><span class="muted">${esc(st.hint)}</span>` : ''}</div>
+  </article>`; }).join('');
+if (location.hash) { const el = document.querySelector(location.hash); if (el) el.scrollIntoView(); }
+</script>
+</body>
+</html>

@@ -67,8 +67,7 @@ window.RL = window.RL || {};
       intro:   { bg: 'img/bg_snow.jpg', robik: [52, 79], mood: 'cold', emit: [{ type: 'snow', rate: 22 }] },
       guess:   { bg: 'img/bg_guess.jpg', heroes: { asya: [17, 75], tim: [83, 75] }, robik: [50, 86],
                  emit: [{ type: 'embers', x: 50, y: 63, w: 5, rate: 9 }, { type: 'dust', x0: 2, x1: 18, y0: 20, y1: 55, rate: 3 }] },
-      measure: { bg: 'img/bg_measure.jpg', robik: [47, 72], target: [77, 70], targetSize: 13,
-                 emit: [{ type: 'dust', x0: 70, x1: 98, y0: 5, y1: 60, rate: 5 }] },
+      measure: { bg: 'img/bg_measure.jpg', robik: [47, 72], target: [77, 70], targetSize: 13 },
       game:    { bg: 'img/bg_snow.jpg', robik: [52, 79], emit: [{ type: 'snow', rate: 18 }] }
     },
     'sound-1': {
@@ -77,7 +76,7 @@ window.RL = window.RL || {};
       guess:   { bg: 'img/bg_tower.jpg', heroes: { asya: [17.4, 80], tim: [82.6, 80] }, robik: [50, 88],
                  emit: [{ type: 'dust', x0: 14, x1: 26, y0: 30, y1: 60, rate: 2 }, { type: 'dust', x0: 74, x1: 86, y0: 30, y1: 60, rate: 2 }] },
       measure: { bg: 'img/bg_sound_lab.jpg', robik: [47, 63], source: [77.3, 47], meter: true,
-                 emit: [{ type: 'rings', x: 77.3, y: 47, level: () => Math.max(0, Math.min(1, (Snr.value - 40) / 40)) }, { type: 'dust', x0: 60, x1: 75, y0: 8, y1: 40, rate: 3 }] },
+                 emit: [{ type: 'rings', x: 77.3, y: 47, level: () => Math.max(0, Math.min(1, (Snr.value - 40) / 40)) }] },
       game:    { bg: 'img/bg_owl_room.jpg', owls: true, night: true,
                  emit: [{ type: 'zzz', x: 18, y: 30, rate: 0.6 }, { type: 'zzz', x: 86, y: 12, rate: 0.5 }, { type: 'fireflies', x0: 42, x1: 66, y0: 8, y1: 40, rate: 1 }] }
     }
@@ -87,8 +86,7 @@ window.RL = window.RL || {};
                emit: [{ type: 'dust', x0: 0, x1: 100, y0: 15, y1: 75, rate: 4, color: '210,225,255' }] },
     guess:   { bg: 'img/bg_lighthouse_room.jpg', heroes: { asya: [14, 70], tim: [81, 70] }, robik: [50, 90],
                emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
-    measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], source: [58.5, 28], blocker: [49, 41], meter: true, beam: true, condsRight: true,
-               emit: [{ type: 'dust', x0: 38, x1: 58, y0: 25, y1: 55, rate: 3, color: '255,245,200' }] },
+    measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], source: [58.5, 28], blocker: [49, 41], meter: true, beam: true, condsRight: true },
     game:    { bg: 'img/bg_harbor.jpg', night: true, lamp: [6.4, 17], boatY: 64 }
   };
   SCENES['weather-1'] = {
@@ -96,8 +94,7 @@ window.RL = window.RL || {};
                emit: [{ type: 'dust', x0: 20, x1: 90, y0: 20, y1: 70, rate: 3, color: '255,250,210' }] },
     guess:   { bg: 'img/bg_meteo_room.jpg', heroes: { asya: [12.5, 72], tim: [87, 72] }, robik: [50, 90],
                emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,250,220' }] },
-    measure: { bg: 'img/bg_meteo_lab.jpg', robik: [30, 74], meter: true, condsRight: true,
-               emit: [{ type: 'dust', x0: 30, x1: 70, y0: 20, y1: 60, rate: 2, color: '220,240,255' }] },
+    measure: { bg: 'img/bg_meteo_lab.jpg', robik: [30, 74], meter: true, condsRight: true },
     game:    { bg: 'img/bg_garden.jpg', robik: [9, 95], cloud: [50, 36], bed: [21, 72], bedY: 79 }
   };
   // вторые уроки: те же места домика, своё вступление
@@ -107,14 +104,19 @@ window.RL = window.RL || {};
     intro: { bg: 'img/bg_sound2_stage.jpg', robik: [42, 84], mood: 'wait', guests: [{ who: 'shum', img: 'img/shumozavr.webp', x: 72, y: 91, h: 30, anim: 'bouncy', enter: 'right' }], emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 3 }] } });
   SCENES['light-2'] = Object.assign({}, SCENES['light-1'], {
     intro: { bg: 'img/bg_light2_reading.jpg', robik: [44, 88], mood: 'wait', guests: [{ who: 'keeper', img: 'img/keeper.webp', x: 74, y: 94, h: 40, anim: 'gentle', enter: 'right' }], emit: [{ type: 'dust', x0: 8, x1: 40, y0: 10, y1: 60, rate: 3, color: '255,240,200' }] },
-    measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], meter: true, condsRight: true, emit: [{ type: 'dust', x0: 38, x1: 58, y0: 25, y1: 55, rate: 3, color: '255,245,200' }] } });
+    measure: { bg: 'img/bg_light_lab.jpg', robik: [36, 72], meter: true, condsRight: true } });
   SCENES['weather-2'] = Object.assign({}, SCENES['weather-1'], {
     intro: { bg: 'img/bg_weather2_kitchen.jpg', robik: [50, 88], mood: 'warm', emit: [{ type: 'dust', x0: 30, x1: 70, y0: 10, y1: 60, rate: 3, color: '255,250,220' }] } });
+  // игры вторых уроков — свои сцены (не снег и не облако из первых уроков)
+  SCENES['heat-2'].game = { emit: [{ type: 'zzz', x: 70, y: 58, rate: 0 }] };
+  SCENES['sound-2'].game = { emit: [{ type: 'dust', x0: 14, x1: 86, y0: 10, y1: 55, rate: 2 }] };
+  SCENES['light-2'].game = { emit: [] };
+  SCENES['weather-2'].game = { emit: [] };
   // ячейки альбома на фоне bg_sticker (центр круга, % сцены)
   const SLOTS = [[19.9, 27.2], [30.5, 27.2], [41.1, 27.2], [19.9, 46.4], [30.5, 46.4], [41.1, 46.4], [19.9, 65.6], [30.5, 65.6], [41.1, 65.6]];
   const moodOf = eyes => ({ blue: 'cold', warm: 'warm', happy: 'happy', wait: 'wait', loud: 'loud', bright: 'bright' }[eyes] || 'neutral');
   // спрайты из Codex (img/codex): подставляются, только если файл есть
-  const CODEX = {}; ['owlet_half', 'owlet_awake', 'howto_cup', 'howto_probe', 'howto_spot', 'howto_pass', 'why_hand', 'why_soft'].forEach(n => { const i = new Image(); i.onload = () => { CODEX['img/codex/' + n + '.webp'] = true; stageKey = ''; /* перерисовать экран с новой картинкой */ }; i.src = 'img/codex/' + n + '.webp'; });
+  const CODEX = {}; ['owlet_half', 'owlet_awake', 'howto_cup', 'howto_probe', 'howto_spot', 'howto_pass', 'why_hand', 'why_soft', 'kitten_sleep', 'kitten_awake'].forEach(n => { const i = new Image(); i.onload = () => { CODEX['img/codex/' + n + '.webp'] = true; stageKey = ''; /* перерисовать экран с новой картинкой */ }; i.src = 'img/codex/' + n + '.webp'; });
   const has = src => !!(src && CODEX[src]);
   // карта без нарисованных героев (Codex): тогда по ней гуляют живые Ася, Тим и Робик
   let mapEmpty = false; { const i = new Image(); i.onload = () => { mapEmpty = true; if (E.state && E.state.screen === 'map') { stageKey = ''; renderStage(E.state, E.lesson); } }; i.src = 'img/map_empty.jpg'; }
@@ -194,7 +196,7 @@ window.RL = window.RL || {};
   function renderStage(S, L) {
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
     const key = JSON.stringify([S && S.screen, L && L.id, S && S.i, S && S.cond, S && S.results, S && S.winner,
-      S && S.game && [S.game.round, S.game.rounds, S.game.between, S.game.won, S.game.done], S && S.paused,
+      S && S.game && [S.game.round, S.game.rounds, S.game.between, S.game.won, S.game.done, S.game.phase, S.game.beat, S.game.count, S.game.pages, S.game.need], S && S.paused, S && S.lostPause, Snr.source,
       S && S.lab && S.lab.marks.map(m => m.n)]);
     if (key === stageKey) return; stageKey = key;
     const scr = S ? S.screen : 'map';
@@ -249,7 +251,7 @@ window.RL = window.RL || {};
       const beam = sc.beam ? `<svg class="lbeam" id="lbeam" viewBox="0 0 100 56.25" preserveAspectRatio="none"><defs><linearGradient id="lbg" x1="1" x2="0"><stop offset="0" stop-color="#fff6c8" stop-opacity=".95"/><stop offset="1" stop-color="#ffe680" stop-opacity=".15"/></linearGradient></defs>
           <polygon points="${sc.source[0]},${sc.source[1] * 0.5625 - 1.2} ${sc.robik[0] + 4},${sc.robik[1] * 0.5625 - 22} ${sc.robik[0] + 4},${sc.robik[1] * 0.5625 - 2} ${sc.source[0]},${sc.source[1] * 0.5625 + 1.2}" fill="url(#lbg)"/></svg>
           ${c.key !== 'open' ? `<div class="blocker" style="left:${sc.blocker[0]}%;top:${sc.blocker[1]}%">${c.icon}</div>` : ''}` : '';
-      h = `<div class="scr"><div class="bg" style="background-image:url(${sc.bg})"></div>${beam}
+      h = `<div class="scr meas"><div class="bg" style="background-image:url(${sc.bg})"></div>${react(L, sc.robik)}${beam}
         ${target}<div class="holdring" id="holdring"><svg viewBox="0 0 100 100"><circle class="trk" cx="50" cy="50" r="44"/><circle class="prog" id="holdprog" cx="50" cy="50" r="44" pathLength="100"/></svg></div>
         ${actor('robik', ROBIK[moodOf(device.eyes)], sc.robik[0], sc.robik[1], 22, 'hover')}${hands}
         ${world}${hud(S, L)}${say(S.reaction || c.short || c.say)}${gauge(L, sc.meter)}
@@ -260,7 +262,7 @@ window.RL = window.RL || {};
     else if (scr === 'lab') {
       // свободная лаборатория: прибор, график, рекорды и ряд находок
       const ms = SCENES[L.base].measure, lab = S.lab, show = lab.marks.slice(-5);
-      h = `<div class="scr"><div class="bg" style="background-image:url(${ms.bg})"></div>
+      h = `<div class="scr meas"><div class="bg" style="background-image:url(${ms.bg})"></div>${react(L, ms.robik)}
         ${actor('robik', ROBIK[moodOf(device.eyes)], ms.robik[0], ms.robik[1], 22, 'hover')}
         ${world}${hud(S, L)}${say(S.reaction || 'Мерьте что хотите — я покажу! 🔬')}${gauge(L, ms.meter)}
         <div class="conds lab">
@@ -295,6 +297,66 @@ window.RL = window.RL || {};
         ${L.channel === 'sound' ? '<div class="unitnote"><span>🔊 выше — громче</span><span>🤫 ниже — тише</span></div>' : L.channel === 'light' ? '<div class="unitnote"><span>☀️ выше — светлее</span><span>🌑 ниже — темнее</span></div>' : L.channel === 'rh' ? '<div class="unitnote"><span>💧 выше — влажнее</span><span>☀️ ниже — суше</span></div>' : ''}${holdBtn('next', '▶')}</div>`;
       floor = 88;
       prev.compareX = X; prev.compareWin = conds.findIndex(c => c.key === S.winner); prev.compareWho = winOpt && winOpt.who;
+    }
+    else if (scr === 'game' && S.game.kind === 'kitten') {
+      // «Грелка для котёнка»: греем Робика, потом он лежит у котёнка, а экран считает, сколько держится тепло
+      const g = S.game, sleep = g.phase === 'cool', kimg = sleep ? 'img/codex/kitten_sleep.webp' : 'img/codex/kitten_awake.webp';
+      const kit = has(kimg) ? `<img class="kitten" id="kitten" src="${kimg}" alt="">` : `<div class="kitten emo" id="kitten">${sleep ? '😴' : '🙀'}</div>`;
+      const tries = [['🤲', 'Просто так'], ['🧣', 'С платочком']];
+      const tmax = Math.max(10, ...g.times);
+      h = `<div class="scr"><div class="bg" style="background-image:url(img/bg_heat2_room.jpg)"></div><div class="glow" id="glow"></div>
+        ${kit}
+        ${actor('robik', g.phase === 'warm' ? ROBIK.cold : ROBIK.warm, 34, 84, 19, 'hover')}
+        ${world}${hud(S, L)}
+        ${say(g.phase === 'warm' ? 'Попытка ' + g.round + ' из ' + g.rounds + ' 🤲 Грейте меня!' : g.phase === 'cool' ? (g.round === 1 ? '🐱 Не трогаем! Смотрим, сколько тепло' : '🧣 Под платочком. Не трогаем!') : g.phase === 'done' ? 'Когда тепло держалось дольше? 🤔' : '❄️ Остыла! Ещё попытка')}
+        ${sleep ? '<div class="ktimer"><span>⏱</span><b id="ktimer">0</b><small>сек</small></div>' : ''}
+        <div class="ktimes">${tries.slice(0, g.rounds).map(([ic, lb], k) => `<div class="kt ${k === g.round - 1 && g.phase !== 'done' ? 'now' : ''}"><span class="ki">${ic}</span><span class="kl">${lb}</span><span class="kb"><i style="width:${g.times[k] !== undefined ? g.times[k] / tmax * 100 : 0}%"></i></span><b>${g.times[k] !== undefined ? g.times[k] + ' с' : '?'}</b></div>`).join('')}</div>
+        <div class="power kpow"><span>${sleep ? '🌡️' : '🔥'}</span><div class="pbar ${sleep ? 'cool' : ''}"><div id="pbar"></div></div></div>
+        <div class="chartbox kchart"><canvas class="chart" id="chart"></canvas></div>
+        ${holdBtn('next', '▶')}</div>`;
+      floor = 92;
+    }
+    else if (scr === 'game' && S.game.kind === 'drum') {
+      // «Повтори ритм»: верхний ряд — удары Шумозавра, нижний — хлопки детей
+      const g = S.game, listen = g.phase === 'listen';
+      h = `<div class="scr"><div class="bg" style="background-image:url(img/bg_sound2_stage.jpg)"></div>
+        ${actor('shum', 'img/shumozavr.webp', 72, 91, 32, 'stand', 'data-depth="0.4" data-anim="bouncy"')}
+        ${actor('robik', g.phase === 'clap' ? ROBIK.wait : ROBIK.happy, 26, 88, 17, 'hover')}
+        ${world}${hud(S, L)}
+        ${say(listen ? '🥁 Слушаем и считаем!' : g.phase === 'clap' ? '👏 Ваша очередь! Хлопайте!' : g.phase === 'done' ? 'Концерт окончен! 🎉' : g.results[g.round - 1] && g.results[g.round - 1].ok ? 'Точно! ✔' : 'Не совпало…')}
+        <div class="rhythm">
+          <div class="rr"><span class="rl">🦖</span>${Array.from({ length: g.need }, (_, k) => `<i class="b ${k < g.beat || !listen ? 'on' : ''}">🥁</i>`).join('')}</div>
+          <div class="rr"><span class="rl">👏</span>${Array.from({ length: Math.max(g.need, g.count) }, (_, k) => `<i class="c ${k < g.count ? (k < g.need ? 'on' : 'extra') : ''}">👏</i>`).join('')}</div>
+          <div class="rn">Ритм ${g.round} из ${g.rounds}</div></div>
+        ${holdBtn('next', '▶')}</div>`;
+      floor = 92;
+    }
+    else if (scr === 'game' && S.game.kind === 'read') {
+      // «Свет для чтения»: яркость держим в зелёной полосе — страницы листаются
+      const g = S.game;
+      h = `<div class="scr meas"><div class="bg" style="background-image:url(img/bg_light2_reading.jpg)"></div>${react(L, [62, 80])}
+        ${actor('keeper', 'img/keeper.webp', 76, 95, 42, 'stand', 'data-depth="0.4" data-anim="gentle"')}
+        ${actor('robik', ROBIK.happy, 40, 90, 15, 'hover')}
+        <div class="book" id="book"><span class="bk">📖</span><div class="bpages">${Array.from({ length: g.need }, (_, k) => `<i class="${k < g.pages ? 'on' : ''}"></i>`).join('')}</div></div>
+        ${world}${hud(S, L)}
+        ${say(g.done ? 'Книжка прочитана! 📚' : 'Не темно и не слишком ярко 🔦')}
+        <div class="lmeter"><div class="lz dark" style="width:${st.lo}%">🌑</div><div class="lz ok" style="width:${st.hi - st.lo}%">📖</div><div class="lz bright" style="width:${100 - st.hi}%">😵</div><div class="lneedle" id="lneedle"></div><div class="lhold"><i id="lhold"></i></div></div>
+        ${holdBtn('next', '▶')}</div>`;
+      floor = 95;
+    }
+    else if (scr === 'game' && S.game.kind === 'rainbow') {
+      // «Радуга после дождя»: дождик (дыхание) — потом ждём, пока высохнет, — полоска радуги
+      const g = S.game, dry = g.phase === 'dry';
+      h = `<div class="scr meas"><div class="bg" style="background-image:url(img/bg_meteo_hill.jpg)"></div>${react(L, [50, 40])}
+        <div class="rainbow">${[0, 1, 2].map(k => `<i class="rb rb${k} ${k < g.won ? 'on' : ''}"></i>`).join('')}</div>
+        <img class="cloud" id="cloud" src="img/cloud.webp" style="left:50%;top:30%" alt="">
+        <div class="sun ${dry || g.phase === 'between' || g.phase === 'done' ? 'on' : ''}" id="sun">☀️</div>
+        ${actor('robik', ROBIK.warm, 14, 94, 15, 'hover')}
+        ${world}${hud(S, L)}
+        ${say(g.phase === 'wet' ? 'Полоска ' + g.round + ' из ' + g.rounds + ' 🌬️ Дышите на меня!' : dry ? '☀️ Не дышим… ждём, пока высохнет' : g.phase === 'done' ? 'Радуга! 🌈' : 'Новая полоска! 🌈')}
+        <div class="power"><span>${dry ? '☀️' : '🌧️'}</span><div class="pbar ${dry ? 'sunny' : ''}"><div id="pbar"></div></div></div>
+        ${holdBtn('next', '▶')}</div>`;
+      floor = 95;
     }
     else if (scr === 'game' && S.game.kind === 'cloud') {
       const g = S.game, n = g.rounds;
@@ -355,20 +417,27 @@ window.RL = window.RL || {};
       h = `<div class="scr"><div class="bg" style="background-image:url(img/bg_sticker.jpg)"></div>
         ${SLOTS.slice(0, n - 1).map(([x, y]) => `<img class="stk placed" src="${img}" style="left:${x}%;top:${y}%" alt="">`).join('')}
         <img class="stk fly" src="${img}" style="--tx:${SLOTS[n - 1][0]}%;--ty:${SLOTS[n - 1][1]}%" alt="">
-        <div class="note"><div class="nt">Мы узнали!</div><div class="nb">${st.say.split('!')[0].replace(/^Мы узнали:\s*/, '').replace(/^./, c => c.toUpperCase())}!</div>
+        <div class="note"><div class="nt">Мы узнали!</div><div class="nb">${found(L, S) || st.say.split('!')[0].replace(/^Мы узнали:\s*/, '').replace(/^./, c => c.toUpperCase()) + '!'}</div>
           <div class="nc">${HOUSES.find(x => x.id === L.house).name}: наклейка <b>${n}</b> из 4</div></div>
         ${actor('robik', ROBIK.happy, 80, 92, 16, 'hover')}
         ${world}${hud(S, L)}
         ${holdBtn('tomap', '🗺️', 'home2')}</div>`;
       emit = [{ type: 'dust', x0: 10, x1: 90, y0: 10, y1: 90, rate: 4, color: '255,230,150' }];
     }
-    if (S && S.paused) h += `<div class="pause"><div class="pbox wood"><i class="rope r1"></i><i class="rope r2"></i><img src="img/robik_sneak.webp" alt=""><div><b>Пауза</b><small>Ждём педагога…</small></div></div></div>`;
+    // имитация видна всем: педагог не спутает её с настоящим замером
+    if (S && L && Snr.source === 'sim' && /^(measure|lab|game)$/.test(scr)) h += '<div class="simtag" title="Показания придумывает симулятор, а не прибор">🎭 имитация</div>';
+    if (S && S.lostPause) h += `<div class="pause lost"><div class="pbox wood"><i class="rope r1"></i><i class="rope r2"></i><img src="img/robik_think.webp" alt=""><div><b>Ой, прибор!</b><small>Он перестал отвечать. Ждём педагога…</small></div></div></div>`;
+    else if (S && S.paused) h += `<div class="pause"><div class="pbox wood"><i class="rope r1"></i><i class="rope r2"></i><img src="img/robik_sneak.webp" alt=""><div><b>Пауза</b><small>Ждём педагога…</small></div></div></div>`;
     h += `<div class="subs" id="subs">${RL.Voice.last || ''}</div>`;
     stage.innerHTML = h;
     stage.classList.toggle('nosubs', !subsOn);
     if (keep) stage.querySelectorAll('.say').forEach(s => s.classList.add('still'));
     W.attach(stage, { emitters: emit, floor, keep });
-    RL.Amb.scene(L && L.lab ? ambience(RL.content[L.base], 'measure') : ambience(L, scr));
+    const calm = scr === 'measure' || scr === 'lab';   // идёт замер: внимание на прибор, музыка и фон тише
+    RL.Music.calm = calm;
+    const amb = L && L.lab ? ambience(RL.content[L.base], 'measure') : ambience(L, scr);
+    if (calm) for (const k in amb) amb[k] *= 0.4;
+    RL.Amb.scene(amb);
     // музыка: тема карты, тема домика на занятии, своя — в лаборатории, весёлая — в игре, торжественная — на наклейке
     RL.Music.play(!L ? 'map' : L.lab ? 'lab' : scr === 'game' ? 'game_' + L.house : scr === 'sticker' ? 'sticker' : scr === 'compare' ? 'discovery' : 'house_' + L.house + (/-2$/.test(L.id) ? '2' : ''));   // у вторых уроков своя тема (house_heat2 …)
     lastMood = ''; updateLive(true);
@@ -376,6 +445,19 @@ window.RL = window.RL || {};
     effects(S, L, scr);
     prev = Object.assign(prev, { screen: scr, lesson: L && L.id, i: S && S.i, results: S && Object.keys(S.results || {}).length, won: S && S.game ? S.game.won : 0, marks: S && S.lab ? S.lab.count : 0 });
   }
+
+  // мир плавно отвечает показанию: тепло — оранжевое свечение вокруг Робика, холод — синий иней,
+  // свет — вся комната светлеет, влажность — туман, звук — кольца (они уже есть). Без ступенек.
+  function react(L, at) { return `<div class="react ${L.channel}" id="react" style="--x:${at[0]}%;--y:${at[1] - 12}%"></div>`; }
+  function reactLevel(ch, v) {
+    if (ch === 't') return Math.max(-1, Math.min(1, (v - 24) / 9));          // −1 холодно … +1 горячо
+    if (ch === 'light') return Math.max(0, Math.min(1, v / 95));
+    if (ch === 'rh') return Math.max(0, Math.min(1, (v - 40) / 50));
+    return Math.max(0, Math.min(1, (v - 35) / 45));
+  }
+
+  // что получилось у группы на самом деле (по замеру, а не по сценарию)
+  function found(L, S) { const c = L.steps.find(x => x.type === 'compare'); const f = c && c.found && S.winner && c.found[S.winner]; return f ? f + '!' : ''; }
 
   // фон сцены: какие петли звучат на каком экране
   function ambience(L, scr) {
@@ -407,7 +489,7 @@ window.RL = window.RL || {};
       const cst = L.steps[S.i], why = cst.why && cst.why[S.winner];
       if (why) setTimeout(() => {
         const sy = stage.querySelector('.say'); if (!sy || E.state.screen !== 'compare') return;
-        sy.classList.add('why'); sy.innerHTML = (has(why.img) ? `<img class="whyimg" src="${why.img}" alt="">` : '<img src="img/robik_think.webp" alt="">') + `<span>${why.text}</span>`;
+        sy.classList.add('why'); sy.innerHTML = (has(why.img) ? `<img class="whyimg" src="${why.img}" alt="">` : '<img src="img/robik_think.webp" alt="">') + `<span>${why.ask || why.text}</span>`;   // вопрос детям, а не готовый ответ
         Sfx.pop();
       }, 6500);
       setTimeout(() => {
@@ -428,6 +510,20 @@ window.RL = window.RL || {};
     if (scr === 'game' && S.game && S.game.won > (prev.won || 0) && S.game.kind === 'ice') { Sfx.melt(); RL.Amb.sfx('ice', 0.8); W.shards(53, 62, 14); W.drops(53, 70, 14); rob && rob.hop(1.4); }
     if (scr === 'game' && S.game && S.game.kind === 'owl' && S.game.done && !prev.owlDone) { Sfx.fanfare(); W.burst(85, 70, ['🍪', '⭐', '✨'], 16); }
     prev.owlDone = scr === 'game' && S.game && S.game.done;
+    const G = scr === 'game' && S.game;
+    if (G && G.kind === 'drum') {
+      const shum = W.actor('shum');
+      if (G.phase === 'listen' && G.beat > (prev.beat || 0)) { Sfx.drum(); W.burst(66, 70, ['🥁', '✨'], 4, 10); if (shum) { shum.hop(0.5); shum.gesture && shum.gesture('nod', 0.4); } }
+      if (G.phase === 'clap' && G.count > (prev.count || 0)) { Sfx.pop(); W.burst(26, 70, G.count > G.need ? ['❗'] : ['👏', '⭐'], 5, 12); rob && rob.hop(0.6); }
+      if (G.phase === 'judge' && prev.phase !== 'judge') { const r = G.results[G.round - 1]; if (r && r.ok) { Sfx.success(); W.burst(50, 40, ['⭐', '🌟', '✨'], 12); shum && shum.gesture && shum.gesture('cheer', 2); } else Sfx.whoosh(); }
+      if (G.phase === 'done' && prev.phase !== 'done') { Sfx.fanfare(); W.confetti(); shum && shum.gesture && shum.gesture('cheer', 3); }
+    }
+    if (G && G.kind === 'read' && G.pages > (prev.pages || 0)) { Sfx.star(); W.burst(50, 52, ['📄', '✨'], 5, 10); const kp = W.actor('keeper'); kp && kp.gesture && kp.gesture('nod', 1); if (G.done) { Sfx.fanfare(); W.confetti(); } }
+    if (G && G.kind === 'kitten' && G.won > (prev.won || 0)) { Sfx.chime(); W.burst(66, 70, ['❄️', '💨'], 8, 12); }
+    if (G && G.kind === 'kitten' && G.phase === 'cool' && prev.phase !== 'cool') { Sfx.pop(); rob && rob.goto(52, 86); }
+    if (G && G.kind === 'rainbow' && G.won > (prev.won || 0)) { Sfx.chime(); W.burst(50, 35, ['🌈', '✨', '⭐'], 12); if (G.phase === 'done') { Sfx.fanfare(); W.confetti(); } rob && rob.hop(1.2); }
+    if (G && G.kind === 'rainbow' && G.phase === 'dry' && prev.phase !== 'dry') { for (let k = 0; k < 6; k++) setTimeout(() => W.drops(42 + Math.random() * 16, 38, 10), k * 160); }
+    prev.beat = G ? G.beat : 0; prev.count = G ? G.count : 0; prev.pages = G ? G.pages : 0; prev.phase = G ? G.phase : '';
     if (scr === 'sticker' && enter) { setTimeout(() => { Sfx.chime(); W.confetti(70); const r = W.actor('robik'); if (r) { r.hop(1.3); r.gesture('cheer', 2.5); } }, 1300); }
   }
 
@@ -516,6 +612,29 @@ window.RL = window.RL || {};
       const pb = $('#pbar'); if (pb) pb.style.width = p * 100 + '%';
       if (rob) look(rob, '', S.game.between ? 'happy' : p > 0.5 ? 'happy' : 'warm');
     }
+    const rx = $('#react'); if (rx && L) { const k = reactLevel(L.channel, v); rx.style.setProperty('--p', k.toFixed(3)); if (L.channel === 'light') { const bg = rx.previousElementSibling; if (bg) bg.style.filter = `brightness(${(0.55 + k * 0.6).toFixed(3)}) saturate(${(0.7 + k * 0.4).toFixed(3)})`; } }
+    if (S && S.screen === 'game' && S.game && S.game.kind === 'kitten') {
+      const g = S.game, p = g.phase === 'warm' ? g.progress : g.phase === 'cool' ? g.progress : 1;
+      const pb = $('#pbar'); if (pb) pb.style.width = p * 100 + '%';
+      const kt = $('#ktimer'); if (kt) kt.textContent = Math.floor(g.secs);
+      const gl = $('#glow'); if (gl) gl.style.opacity = g.phase === 'warm' ? g.progress * 0.8 : g.phase === 'cool' ? (1 - g.progress) * 0.8 : 0;
+      if (rob) { rob.shiver = g.phase === 'warm' ? 0.5 * (1 - g.progress) : 0; look(rob, '', g.phase === 'warm' ? (g.progress > 0.5 ? 'warm' : 'cold') : g.phase === 'cool' ? 'warm' : 'cold'); }
+      const zz = W.emitter('zzz'); if (zz) zz.rate = g.phase === 'cool' ? 0.7 : 0;
+    }
+    if (S && S.screen === 'game' && S.game && S.game.kind === 'read') {
+      const g = S.game, st = L.steps[S.i], nd = $('#lneedle'); if (nd) nd.style.left = Math.max(0, Math.min(100, v)) + '%';
+      const lh = $('#lhold'); if (lh) lh.style.width = Math.min(1, g.hold / (st.pageSec || 2.5)) * 100 + '%';
+      const bk = $('#book'); if (bk) { bk.classList.toggle('lit', g.zone === 'ok'); bk.classList.toggle('glare', g.zone === 'bright'); }
+      if (rob) look(rob, '', g.done ? 'happy' : g.zone === 'bright' ? 'bright' : g.zone === 'ok' ? 'happy' : 'wait');
+      const sy = $('#saytext'); if (sy && !g.done) { const t = g.zone === 'ok' ? 'Как раз! Читаем… 📖' : g.zone === 'bright' ? 'Слепит! Дальше 🔦↔' : 'Темно! Ближе 🔦'; if (sy.textContent !== t) sy.textContent = t; }
+    }
+    if (S && S.screen === 'game' && S.game && S.game.kind === 'rainbow') {
+      const g = S.game, p = g.phase === 'wet' || g.phase === 'dry' ? g.progress : 1;
+      const pb = $('#pbar'); if (pb) pb.style.width = p * 100 + '%';
+      const cl = $('#cloud'); if (cl) { const big = g.phase === 'wet' ? 0.35 + g.progress * 0.65 : g.phase === 'dry' ? 1 - g.progress * 0.7 : 0.25; cl.style.transform = `translate(-50%,-50%) scale(${big})`; cl.style.filter = `brightness(${g.phase === 'wet' ? 1 - g.progress * 0.35 : 0.7 + p * 0.3}) drop-shadow(0 1cqw 1.4cqw rgba(0,0,0,.25))`; }
+      const sun = $('#sun'); if (sun) sun.style.setProperty('--s', g.phase === 'dry' ? 0.4 + g.progress * 0.6 : 1);
+      if (rob) look(rob, '', g.phase === 'dry' ? 'wait' : g.phase === 'wet' ? 'warm' : 'happy');
+    }
     const lb = $('#lbeam'); if (lb) lb.style.opacity = Math.max(0.05, Math.min(1, v / 95));
     if (S && S.screen === 'game' && S.game && S.game.kind === 'beam') {
       const g = S.game, lamp = $('#lamp');
@@ -579,7 +698,7 @@ window.RL = window.RL || {};
     if (!autopilot || Snr.source !== 'sim' || !S || !L) return;
     const st = S.i >= 0 ? L.steps[S.i] : null; if (!st) return;
     const g = S.game;
-    const key = [L.id, S.i, S.cond, Object.keys(S.results).length, g && g.round, g && g.between, S.lab && S.lab.count].join('|');
+    const key = [L.id, S.i, S.cond, Object.keys(S.results).length, g && g.round, g && g.between, g && g.phase, g && g.tries, S.lab && S.lab.count].join('|');
     if (key === apKey) return; apKey = key; clearTimeout(apTimer);
     const sound = L.channel === 'sound', light = L.channel === 'light', wet = L.channel === 'rh';
     if (st.type === 'measure') {
@@ -587,6 +706,19 @@ window.RL = window.RL || {};
       apTimer = setTimeout(() => { wet ? Snr.rh(c.key) : light ? Snr.light(c.key) : sound ? Snr.sound(c.key) : Snr.hold(c.key); refreshPanel(); }, 1400);
     } else if (st.type === 'game' && g && g.kind === 'beam') {
       apTimer = setInterval(() => { const S2 = E.state; if (!S2 || !S2.game || S2.game.kind !== 'beam' || S2.game.done) { clearInterval(apTimer); return; } Snr.light(Snr.sim.light.state === 'open' ? 'dark' : 'open'); }, 900);
+    } else if (st.type === 'game' && g && g.kind === 'kitten') {
+      if (g.phase === 'warm') apTimer = setTimeout(() => { Snr.hold('hand'); refreshPanel(); }, 1800);
+      else { Snr.hold(null); refreshPanel(); }
+    } else if (st.type === 'game' && g && g.kind === 'drum') {
+      if (g.phase !== 'clap') { Snr.sound('quiet'); return; }
+      let n = 0; const clap = () => { const S2 = E.state; if (!S2 || !S2.game || S2.game.phase !== 'clap' || n >= g.need) { Snr.sound('quiet'); return; }
+        Snr.sound('noise'); apTimer = setTimeout(() => { Snr.sound('quiet'); n++; apTimer = setTimeout(clap, 600); }, 300); };
+      apTimer = setTimeout(clap, 900);
+    } else if (st.type === 'game' && g && g.kind === 'read') {
+      apTimer = setTimeout(() => { Snr.light('open'); refreshPanel(); apTimer = setTimeout(() => { Snr.light('lamp'); refreshPanel(); }, 2500); }, 1500);
+    } else if (st.type === 'game' && g && g.kind === 'rainbow') {
+      if (g.phase === 'wet') apTimer = setTimeout(() => { Snr.rh('breath'); refreshPanel(); }, 1800);
+      else { Snr.rh('room'); refreshPanel(); }
     } else if (st.type === 'game' && g && g.kind === 'cloud' && !g.between) {
       apTimer = setTimeout(() => { Snr.rh('breath'); refreshPanel(); }, 1800);
     } else if (st.type === 'game' && g && g.kind === 'ice' && !g.between) {
@@ -606,7 +738,7 @@ window.RL = window.RL || {};
   function renderPanel(S, L) {
     const j = RL.Journal.list();
     const key = JSON.stringify([S && S.screen, L && L.id, S && S.i, S && S.cond, S && S.results, S && S.votes, S && S.paused,
-      j.length, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, Snr.calPoints, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
+      j.length, Snr.lost && Snr.lost.reason, S && S.lab && S.lab.marks.map(m => m.n), Snr.sim.light.state, Snr.sim.rh.state, Snr.sim.holding, Snr.sim.sound.state, Snr.source, Snr.channel, Snr.calPoints, RL.Voice.muted, subsOn, autopilot, S && S.game && S.game.round]);
     if (key === panelKey) return; panelKey = key;
     const st = L && S.i >= 0 ? L.steps[S.i] : null;
     let h = `<div class="ph"><img class="plogo" src="img/logo.svg" alt="робиклаб"><b>Пульт педагога</b><span class="grp">«Солнышко» · 18 детей</span><button id="present" title="Клавиша P">Скрыть</button></div>`;
@@ -615,16 +747,23 @@ window.RL = window.RL || {};
       <button class="btn ${board ? 'on' : ''}" id="m-board" title="Интерактивная доска: карточки нажимаются, «Дальше» — долгим нажатием">👆 Доска</button></div>
       <p class="muted">${board ? 'Дети нажимают карточки на доске. Кнопка ▶ срабатывает, если удерживать её 1 секунду.' : 'Шаги и голоса ведёте вы: «Дальше» — здесь или клавишей →.'}</p></div>`;
 
+    if (Snr.lost) {
+      const why = { closed: 'кабель выдернули или прибор выключился', silent: 'прибор перестал присылать показания', nochannel: 'прибор не присылает ' + { t: 'температуру', sound: 'громкость', light: 'яркость', rh: 'влажность' }[Snr.channel], mic: 'микрофон отключили или запретили' }[Snr.lost.reason];
+      h += `<div class="sec lostbox"><h4>⚠ Прибор не отвечает</h4><p>Похоже, ${why}. Занятие на паузе, показания не записываются.</p>
+        <div class="row"><button class="btn primary" id="${Snr.lost.kind === 'mic' ? 'mic' : 'serial'}">🔌 Подключить снова</button><button class="btn" id="p-usesim">🎭 Продолжить с имитацией</button></div>
+        <p class="muted">Имитация — придуманные показания для показа. Настоящими их считать нельзя.</p></div>`;
+    }
     if (!L) {
       const done = doneLessons();
       h += `<div class="sec"><h4>Темы</h4>${HOUSES.map(x => { const les = x.lesson && RL.content[x.lesson];
         return `<div class="topic ${les ? 'on' : ''}">${x.icon} ${x.topic}
         ${les ? `<span class="gos"><button class="go lab" data-lab="${x.lesson}" title="Свободные опыты: мерить что угодно">🔬</button></span>` : '<span class="soon">следующая версия</span>'}</div>
         ${les ? `<div class="lessons">${x.lessons.map((id, k) => { const l = RL.content[id]; return `<button class="lsn ${done.has(id) ? 'done' : ''}" data-start="${id}" title="${l.age} · ${l.minutes} мин">▶ ${k + 1}. ${l.title}${done.has(id) ? ' ✔' : ''}</button>`; }).join('')}</div>` : ''}`; }).join('')}
+        <div class="row"><a class="btn" href="cards.html" target="_blank" rel="noopener">📄 Карточки уроков для педагога</a></div>
         <p class="muted">▶ Урок — занятие по сценарию. 🔬 Лаборатория — свободные опыты с тем же датчиком: дети мерят что хотят и сравнивают находки.</p></div>`;
     } else if (L.lab) {
       h += `<div class="sec"><h4>${L.title}</h4>
-        <div class="ctrls"><button id="p-pause" class="primary">${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-lesson">▶ Урок этого домика</button>
+        <div class="ctrls"><button id="p-pause" class="primary" ${Snr.lost ? 'disabled title="Сначала подключите прибор или включите имитацию"' : ''}>${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-lesson">▶ Урок этого домика</button>
         <button id="p-map" style="grid-column:span 2">⌂ Завершить и на карту</button></div>
         <p class="keys">Esc — пауза · R — повтор фразы · Enter — запомнить</p></div>`;
       h += `<div class="sec"><h4>Подсказка педагогу</h4><div class="hint">${st.hint}</div></div>`;
@@ -636,11 +775,15 @@ window.RL = window.RL || {};
       h += `<div class="sec"><h4>Занятие · ${L.title} · ${L.minutes} мин</h4><ul class="steps">${L.steps.map((x, k) =>
         `<li data-go="${k}" class="${k === S.i ? 'cur' : k < S.i ? 'past' : ''}"><span class="n">${k + 1}</span>${x.title}</li>`).join('')}</ul>
         <div class="ctrls"><button id="p-back">⏮ Назад</button><button id="p-skip">Пропустить ⏭</button>
-        <button id="p-pause" class="primary">${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-repeat">🔁 Повторить шаг</button>
+        <button id="p-pause" class="primary" ${Snr.lost ? 'disabled title="Сначала подключите прибор или включите имитацию"' : ''}>${S.paused ? '▶ Продолжить' : '⏸ Пауза для всех'}</button><button id="p-repeat">🔁 Повторить шаг</button>
         <button id="p-map" style="grid-column:span 2">⌂ Завершить и на карту</button></div>
-        <p class="keys">← → шаги · Esc — пауза · R — повтор фразы · P — скрыть пульт</p></div>`;
+        <p class="keys">← → шаги · Esc — пауза · R — повтор фразы · P — скрыть пульт</p>
+        <div class="row"><a class="btn" href="cards.html#${L.id}" target="_blank" rel="noopener">📄 Карточка урока</a></div></div>`;
       h += `<div class="sec"><h4>Сейчас звучит</h4><div id="psay">${RL.Voice.last || ''}</div><div class="row"><button class="btn" id="p-sayagain">🔊 Повторить фразу</button></div></div>`;
       if (st && st.hint) h += `<div class="sec"><h4>Подсказка педагогу</h4><div class="hint">${st.hint}</div></div>`;
+      if (st && st.type === 'compare' && S.winner && st.why && st.why[S.winner]) { const w = st.why[S.winner];
+        h += `<div class="sec"><h4>Обсудите с детьми</h4><div class="hint"><b>${w.ask || w.text}</b>${w.idea ? `<br><span class="muted">Возможная причина: ${w.idea}</span>` : ''}</div>
+          <p class="muted">Прибор показал только, где ${{ t: 'теплее', sound: 'громче или тише', light: 'светлее', rh: 'больше воды в воздухе' }[L.channel]}. Почему так вышло — выясняйте вместе. Причина — догадка, пока её не проверили.</p></div>`; }
       if (st && st.type === 'intro') h += `<div class="sec"><div class="row"><button class="btn" id="p-skipnarr">⏭ Пропустить рассказ — сразу Робик</button></div></div>`;
       const rg = L.steps.find(x => x.game === 'warm-robik' || x.game === 'cloud');
       if (rg) h += `<div class="sec"><h4>${rg.title.split(' · ')[0]}</h4><div class="vrow"><span class="vl">Туров — по числу детей</span><button id="r-minus">−</button><b>${E.rounds}</b><button id="r-plus">+</button></div></div>`;
@@ -657,7 +800,7 @@ window.RL = window.RL || {};
     h += `<div class="sec"><h4>Датчик «Робик» · ${snd ? 'звук' : lux ? 'свет' : wet ? 'влажность' : 'температура'}</h4>
       <div class="live"><span class="big" id="pv">—</span><span id="ptrend" class="muted"></span></div>
       <div class="dev">Глаза: <span class="eye" id="peye"></span><span id="peyet"></span> · <span id="pvib"></span></div>
-      <div class="muted">Источник: ${{ serial: 'USB (Web Serial)', mic: 'микрофон компьютера', sim: 'симулятор' }[Snr.source]}</div>
+      <div class="muted">Источник: ${Snr.lost ? '⚠ прибор не отвечает' : { serial: 'USB (Web Serial)', mic: 'микрофон компьютера', sim: '🎭 симулятор (имитация, не настоящие показания)' }[Snr.source]}</div>
       ${Snr.source === 'sim' && wet ? `<div class="simbtns four">${[['room', '🌤️ Воздух'], ['towel', '🧺 Полотенце'], ['sponge', '🧽 Губка'], ['breath', '🌬️ Дыхание']].map(([k, t]) =>
           `<button class="btn ${Snr.sim.rh.state === k ? 'on' : ''}" data-rh="${k}">${t}</button>`).join('')}</div>
         <div class="sliders">${[['towel', '🧺'], ['sponge', '🧽'], ['breath', '🌬️']].map(([k, i]) => `<label>${i} <input type="range" min="30" max="98" value="${Snr.sim.rh[k]}" data-rhl="${k}"><b>${Snr.sim.rh[k]}</b></label>`).join('')}</div>
@@ -812,6 +955,7 @@ window.RL = window.RL || {};
       case 'p-resetrec': E.resetRecords(); break;
       case 'p-calpt': { const v = parseFloat(($('#calref').value || '').replace(',', '.')); if (!Snr.calPoint(v)) alert(isFinite(v) ? 'Нет данных от прибора — проверьте подключение.' : 'Впишите, что показывает эталонный прибор.'); refreshPanel(); break; }
       case 'p-calreset': Snr.calReset(); refreshPanel(); break;
+      case 'p-usesim': await Snr.useSim(); refreshPanel(); break;
       case 'p-lesson': E.start(E.lesson.base); break;
       case 'jall': journalModal(); break;
       case 'csv': downloadCSV(); break;
@@ -828,7 +972,7 @@ window.RL = window.RL || {};
       case 'music': RL.Music.enabled = !RL.Music.enabled; refreshPanel(); break;
       case 'subsbtn': subsOn = !subsOn; stage.classList.toggle('nosubs', !subsOn); refreshPanel(); break;
       case 'serial': try { await Snr.connectSerial(); refreshPanel(); } catch (err) { alert(err.message); } break;
-      case 'mic': try { if (Snr.source === 'mic') Snr.disconnectMic(); else await Snr.connectMic(); refreshPanel(); } catch (err) { alert('Микрофон недоступен: ' + err.message); } break;
+      case 'mic': try { if (Snr.source === 'mic' && !Snr.lost) Snr.disconnectMic(); else await Snr.connectMic(); refreshPanel(); } catch (err) { alert('Микрофон недоступен: ' + err.message); } break;
       case 'export': {
         download('robiclab-start-journal.json', RL.Journal.exportJSON(), 'application/json'); break;
       }
@@ -861,7 +1005,7 @@ window.RL = window.RL || {};
   document.addEventListener('keyup', e => { if (e.code === 'Space') { Snr.channel === 'rh' ? Snr.rh('room') : Snr.channel === 'light' ? Snr.light('room') : Snr.channel === 'sound' ? Snr.sound('quiet') : Snr.hold(null); refreshPanel(); } });
 
   document.addEventListener('rl:say', e => { const s = $('#subs'); if (s) s.textContent = e.detail; const p = $('#psay'); if (p) p.textContent = e.detail; });
-  Snr.onDevice(d => { const moved = device && device.source !== d.source; device = d; if (moved && panel.innerHTML) refreshPanel(); });   // подключили или отключили датчик — пульт перерисовать
+  Snr.onDevice(d => { const moved = device && (device.source !== d.source || !!device.lost !== !!d.lost); device = d; if (moved && panel.innerHTML) refreshPanel(); });   // подключили или отключили датчик — пульт перерисовать
 
   RL.Sync.subscribe(() => { if (panel.innerHTML) refreshPanel(); });
   E.subscribe((S, L) => { renderStage(S, L); renderPanel(S, L); autopilotTick(S, L); });

@@ -21,7 +21,8 @@ RL.Sfx = (function () {
     melt() { tone(900, 0, 0.35, 'sine', 0.14, 0.4); tone(1400, 0.08, 0.25, 'sine', 0.07, 0.5); },
     chime() { [notes.G5, notes.C6, notes.E5 * 2].forEach((f, i) => tone(f, i * 0.14, 0.5, 'sine', 0.13)); },
     whoosh() { tone(200, 0, 0.35, 'sawtooth', 0.04, 4); },
-    star() { tone(1320, 0, 0.12, 'triangle', 0.12); tone(1760, 0.08, 0.22, 'sine', 0.1); }
+    star() { tone(1320, 0, 0.12, 'triangle', 0.12); tone(1760, 0.08, 0.22, 'sine', 0.1); },
+    drum() { tone(120, 0, 0.22, 'sine', 0.4, 0.45); tone(220, 0, 0.07, 'triangle', 0.18, 0.4); tone(3200, 0, 0.03, 'square', 0.03); }
   };
   // основной вариант — файлы audio/sfx/<имя>.mp3 (делает audio/sfx/make_sfx.py); громкость подобрана под голос
   const VOL = { pop: 0.4, tap: 0.22, success: 0.8, fanfare: 0.85, melt: 0.8, chime: 0.75, whoosh: 0.2, star: 0.75 };
@@ -41,6 +42,7 @@ RL.Sfx = (function () {
   }
   const api = { set enabled(v) { on = v; }, get enabled() { return on; } };
   for (const name in VOL) api[name] = () => play(name);
+  api.drum = () => { if (on) synth.drum(); };   // барабан Шумозавра — только синтез
   return api;
 })();
 
@@ -120,13 +122,13 @@ RL.Amb = (function () {
 // Если файла нет, просто тишина — занятие от музыки не зависит.
 RL.Music = (function () {
   const VOL = 0.16;
-  let cur = null, curName = '', on = true, duck = false, unlocked = false;
+  let cur = null, curName = '', on = true, duck = false, unlocked = false, calm = false;   // calm — идёт замер: музыка еле слышна
   const tracks = {};
   function el(name) { if (!tracks[name]) { const a = new Audio('audio/music/' + name + '.mp3'); a.loop = true; a.volume = 0; a.preload = 'auto'; a.onerror = () => { a.dead = true; }; tracks[name] = a; } return tracks[name]; }
   setInterval(() => {
     for (const n in tracks) {
       const a = tracks[n]; if (a.dead) continue;
-      const target = on && unlocked && n === curName ? VOL * (duck ? 0.45 : 1) : 0;
+      const target = on && unlocked && n === curName ? VOL * (duck ? 0.45 : 1) * (calm ? 0.3 : 1) : 0;
       a.volume = Math.max(0, Math.min(1, a.volume + (target - a.volume) * 0.08));
       if (target > 0.001 && a.paused) a.play().catch(() => {});
       if (target <= 0.001 && a.volume < 0.005 && !a.paused) a.pause();
@@ -136,6 +138,7 @@ RL.Music = (function () {
   ['pointerdown', 'keydown'].forEach(ev => window.addEventListener(ev, () => { unlocked = true; }, { passive: true }));
   return {
     play(name) { if (name === curName) return; curName = name || ''; if (name) el(name); },
-    set enabled(v) { on = v; }, get enabled() { return on; }
+    set enabled(v) { on = v; }, get enabled() { return on; },
+    set calm(v) { calm = !!v; }, get calm() { return calm; }
   };
 })();
